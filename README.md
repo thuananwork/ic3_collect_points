@@ -17,7 +17,7 @@ python -B -m unittest tests.test_taodethi -v
 `IC3_OLD_PATCH` doi chieu tung byte voi script cu. Khong dat hai bien thi cac ca can de that duoc bo qua.
 
 ## Build TaoDeThi.exe (Windows 10/11)
-Chay `tools\taodethi\build_taodethi.bat`. Can Python 3.12 hoac 3.13 (xem ghi chu ve 3.14 trong file bat), Nuitka tu cai.
+Chay `tools\taodethi\build_taodethi.bat`. Can Python 3.12, 3.13 hoac 3.14 (Nuitka 4.2 tro len ho tro 3.14). Neu may chua co Python, file bat de nghi cai Python 3.13 bang winget. Nuitka tu cai bang pip.
 Ket qua: `dist\TaoDeThi.exe`. Khong dung PyInstaller vi no de bi dich nguoc.
 
 ## Bao mat
