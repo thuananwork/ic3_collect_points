@@ -39,7 +39,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-%PYCMD% -m nuitka --onefile --assume-yes-for-downloads --enable-plugin=tk-inter --windows-console-mode=force ^
+%PYCMD% -m nuitka --onefile --assume-yes-for-downloads --enable-plugin=tk-inter --windows-console-mode=disable ^
   --output-dir="%~dp0..\..\dist" --output-filename=TaoDeThi.exe --product-name="TaoDeThi" ^
   --file-version=1.0.0.0 taodethi.py
 if errorlevel 1 (

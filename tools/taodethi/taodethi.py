@@ -172,20 +172,39 @@ def _pick_files():
         return []
 
 
+def _gui_report(lines, ok):
+    try:
+        import tkinter
+        from tkinter import messagebox
+        root = tkinter.Tk()
+        root.withdraw()
+        root.attributes('-topmost', True)
+        (messagebox.showinfo if ok else messagebox.showwarning)('TaoDeThi', '\n'.join(lines))
+        root.destroy()
+    except Exception:
+        pass
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description='Tao file de thi *_LAN.exe cho hoc sinh')
     ap.add_argument('files', nargs='*')
     ap.add_argument('--out-dir', help='gom tat ca file tao ra vao mot thu muc (mac dinh: canh file goc)')
     ap.add_argument('--no-pause', action='store_true', help='khong cho bam phim khi xong')
+    ap.add_argument('--cli', action='store_true', help='chay kieu dong lenh (in ra man hinh) thay vi hop thoai')
     a = ap.parse_args(argv)
+    gui = not a.cli
+    lines = []
+    out = print if a.cli else lines.append
     files = expand(a.files) or expand(_pick_files())
     if not files:
-        print('Chua co file nao. Hay keo file de thi (.exe) tha len bieu tuong TaoDeThi.exe.')
+        out('Chua co file nao. Hay keo file de thi (.exe) tha len bieu tuong TaoDeThi.exe.')
         code = 2
     else:
-        res = run(files, a.out_dir)
+        res = run(files, a.out_dir, out)
         code = 1 if any(s == 'LOI' for _, s, _ in res) else 0
-    if not a.no_pause and sys.stdin and sys.stdin.isatty():
+    if gui:
+        _gui_report(lines or ['Xong.'], code == 0)
+    elif not a.no_pause and sys.stdin and sys.stdin.isatty():
         try:
             input('\nBam Enter de dong...')
         except EOFError:
