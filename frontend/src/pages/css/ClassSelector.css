@@ -1,0 +1,247 @@
+@import './SelectorCommon.css';
+
+
+.class-selector-page .grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.class-selector-page .card {
+  background: var(--white);
+  padding: 30px 25px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--white);
+  transition: 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.class-selector-page .card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--blue-lt);
+}
+
+.class-selector-page .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px dashed var(--gray-200);
+}
+
+.class-selector-page .card-header h3 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--blue-dk);
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.class-selector-page .card-icon {
+  background: var(--blue-lt);
+  color: var(--blue);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.class-selector-page .card-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.class-selector-page .btn-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.class-selector-page button.class-btn {
+  width: 100%;
+  padding: 12px 10px;
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-300);
+  color: var(--gray-700);
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-family: inherit;
+  text-align: center;
+}
+
+.class-selector-page button.class-btn:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: var(--white);
+  transform: scale(1.03);
+  box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);
+}
+
+.class-selector-page button.class-btn.active {
+  border-color: var(--blue);
+  background: var(--blue-lt);
+  color: var(--blue-dk);
+}
+
+.class-selector-page .btn-add {
+  width: 100%;
+  padding: 12px 10px;
+  background: transparent;
+  border: 2px dashed var(--gray-300);
+  color: var(--gray-500);
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-family: inherit;
+}
+
+.class-selector-page .btn-add:hover {
+  border-color: #1e8e3e;
+  background: #e6f4ea;
+  color: #1e8e3e;
+  box-shadow: none;
+}
+
+.class-selector-page .class-wrapper {
+  position: relative;
+  width: 100%;
+  display: inline-block;
+}
+
+.class-selector-page .del-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-300);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s;
+  height: auto;
+  width: auto;
+  margin: 0;
+}
+
+.class-selector-page .class-wrapper:hover .del-btn {
+  opacity: 1;
+}
+
+.class-selector-page .del-btn:hover {
+  color: #e74c3c;
+  background: #ffeaea;
+}
+
+.class-selector-page .level-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 40px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.15);
+  padding-bottom: 12px;
+}
+
+[data-theme='dark'] .class-selector-page .level-tabs {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.class-selector-page .level-tab {
+  padding: 10px 24px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--gray-600);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.class-selector-page .level-tab:hover {
+  color: var(--blue);
+  background: var(--gray-50);
+}
+
+.class-selector-page .level-tab.active {
+  color: var(--blue);
+  background: var(--blue-lt);
+}
+
+.class-selector-page .level-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -14px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--blue);
+  border-radius: 3px 3px 0 0;
+}
+
+.back-btn-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 25px;
+}
+
+.btn-back-schools {
+  background: var(--white);
+  border: 1.5px solid var(--gray-300);
+  color: var(--gray-700);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-back-schools:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-500);
+  color: var(--gray-900);
+  transform: translateX(-3px);
+}
+
+@media (max-width: 900px) {
+  .class-selector-page .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .class-selector-page .grid {
+    grid-template-columns: 1fr;
+  }
+  .class-selector-page .level-tabs {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .class-selector-page .level-tab.active::after {
+    display: none;
+  }
+}

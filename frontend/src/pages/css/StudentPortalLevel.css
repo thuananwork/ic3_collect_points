@@ -1,0 +1,182 @@
+/* =========================================
+   STUDENT PORTAL LEVEL - Final Enhanced
+   ========================================= */
+
+.level-page-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.2rem 1.5rem 3rem;
+  /* Giảm padding trên */
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+  position: relative;
+}
+
+/* Background Shapes */
+.level-page-container::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -180px;
+  width: 620px;
+  height: 380px;
+  background: radial-gradient(ellipse at center, rgba(26, 115, 232, 0.09) 0%, transparent 60%);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.level-page-container::after {
+  content: '';
+  position: absolute;
+  bottom: -140px;
+  left: -120px;
+  width: 520px;
+  height: 320px;
+  background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.07) 0%, transparent 65%);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+/* Back Button - Nhỏ hơn & Đẩy lên cao */
+.btn-back-level-minimal {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+  background: #1a73e8 !important;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 0.92rem !important;
+  padding: 8px 16px !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 3px 10px rgba(26, 115, 232, 0.2) !important;
+  align-self: flex-start !important;
+  margin-bottom: 0.4rem !important;
+  border: none !important;
+  text-decoration: none !important;
+}
+
+.btn-back-level-minimal:hover {
+  background: #1557b0 !important;
+  color: white !important;
+  transform: translateX(-4px) !important;
+  box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3) !important;
+}
+
+/* Header - Tiêu đề đẩy lên trên */
+.level-header-title-box {
+  text-align: center;
+  margin-top: 0.2rem;
+  /* Đẩy tiêu đề lên */
+  margin-bottom: 1.2rem;
+}
+
+.level-header-title-box h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.45rem;
+  letter-spacing: -0.8px;
+}
+
+[data-theme='dark'] .level-header-title-box h2 {
+  color: #f1f5f9;
+}
+
+.level-header-title-box p {
+  font-size: 1.1rem;
+  color: #475569;
+  max-width: 720px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+[data-theme='dark'] .level-header-title-box p {
+  color: #94a3b8;
+}
+
+/* Card giữ nguyên */
+.level-quizzes-flex-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.level-quiz-card-modern {
+  background: var(--card-bg);
+  border: 1.5px solid rgba(26, 115, 232, 0.18);
+  border-left: 7px solid #1a73e8;
+  border-radius: 20px;
+  padding: 2.1rem 2.4rem;
+  box-shadow: 0 6px 26px rgba(26, 115, 232, 0.07);
+  display: flex;
+  align-items: center;
+  gap: 2.8rem;
+  transition: all 0.3s ease;
+}
+
+.level-quiz-card-modern:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 36px rgba(26, 115, 232, 0.14);
+}
+
+.quiz-card-content h4 {
+  font-size: 1.48rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.quiz-subtitle {
+  font-size: 1.02rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.quiz-card-actions-row {
+  display: flex;
+  gap: 14px;
+}
+
+.btn-mode-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.9rem 1.8rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  min-width: 160px;
+}
+
+.btn-mode-action.btn-learn {
+  background: linear-gradient(135deg, #1a73e8, #3b82f6);
+  color: white;
+}
+
+.btn-mode-action.btn-test {
+  background: white;
+  border: 1.8px solid #e2e8f0;
+  color: #1a73e8;
+}
+
+.btn-mode-action.btn-practice {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);
+}
+
+.btn-mode-action.btn-practice:hover {
+  background: linear-gradient(135deg, #0d9668, #10b981);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+}
+
+.btn-mode-action.btn-practice:active {
+  transform: translateY(0);
+}

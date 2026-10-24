@@ -1,0 +1,75 @@
+/* Cheat Blocker Overlay Styles */
+.cheat-blocker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.95);
+  z-index: 10000;
+  padding: 2rem;
+}
+
+.blocker-card {
+  max-width: 500px;
+  text-align: center;
+  padding: 2.5rem;
+  border-radius: 20px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.blocker-alert-icon {
+  color: #ef4444;
+  margin-bottom: 1.5rem;
+  animation: pulse-glow-red-cheat 1.5s infinite;
+}
+
+.blocker-card h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.blocker-card p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.blocker-status {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+.btn-re-enter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.85rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  justify-content: center;
+}
+
+/* Animations */
+@keyframes pulse-glow-red-cheat {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}

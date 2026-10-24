@@ -1,0 +1,85 @@
+/* Shared CSS for Selector Pages (SchoolSelector and ClassSelector) */
+
+.school-selector-page,
+.class-selector-page {
+  --blue: #1a73e8;
+  --blue-dk: #1557b0;
+  --blue-lt: #e8f0fe;
+  --gray-50: #f8f9fa;
+  --gray-200: #e8eaed;
+  --gray-300: #dadce0;
+  --gray-500: #9aa0a6;
+  --gray-600: #80868b;
+  --gray-700: #3c4043;
+  --gray-900: #202124;
+  --white: #ffffff;
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 12px 32px rgba(26, 115, 232, 0.15);
+  
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: calc(100vh - 60px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-900);
+  padding: 40px 20px;
+  width: 100%;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  box-sizing: border-box;
+}
+
+[data-theme='dark'] .school-selector-page,
+[data-theme='dark'] .class-selector-page {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --white: #1e293b;
+  --gray-50: #0f172a;
+  --gray-200: #334155;
+  --gray-300: #475569;
+  --gray-500: #94a3b8;
+  --gray-600: #cbd5e1;
+  --gray-700: #e2e8f0;
+  --gray-900: #f8fafc;
+  --blue-lt: #1e3a8a;
+  --blue-dk: #60a5fa;
+}
+
+.school-selector-page .container,
+.class-selector-page .container {
+  max-width: 1200px;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.school-selector-page .header,
+.class-selector-page .header {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.school-selector-page .header h1,
+.class-selector-page .header h1 {
+  font-size: 32px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--gray-900);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.school-selector-page .logo-badge,
+.class-selector-page .logo-badge {
+  background: var(--blue);
+  color: var(--white);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 20px;
+  letter-spacing: 1px;
+  box-shadow: var(--shadow-sm);
+  font-weight: bold;
+}

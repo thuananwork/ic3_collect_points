@@ -1,0 +1,5 @@
+[
+  {"id": "feature-x", "mode": "write", "prompt_file": "prompts/feature-x.txt",
+   "add_dirs": ["<worktree>"], "cwd": "<worktree>",
+   "allowed_paths": ["backend/src/**", "tests/**"], "timeout_s": 1200}
+]

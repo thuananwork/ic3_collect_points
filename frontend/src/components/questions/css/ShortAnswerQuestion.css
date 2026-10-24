@@ -1,0 +1,43 @@
+.short-answer-interactive-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.student-short-input {
+  width: 100%;
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.85rem 1.25rem;
+  font-size: 1.1rem;
+  color: #0f172a;
+  outline: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+[data-theme='dark'] .student-short-input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e4e4e7;
+}
+
+.student-short-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.student-short-input:disabled {
+  background-color: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+[data-theme='dark'] .student-short-input:disabled {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #475569;
+}

@@ -1,0 +1,357 @@
+/* =========================================
+   GIAO DIỆN LOGIN & REGISTER HIỆN ĐẠI (IC3 MANAGER)
+   ========================================= */
+
+.login-container {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Nền Mesh Gradient động (Sáng, trong trẻo) */
+.mesh-bg {
+  background-color: #fffafb;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(255, 183, 197, 0.25) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(219, 39, 119, 0.12) 0px, transparent 50%);
+  background-size: cover;
+  transition: background-color 0.3s ease;
+}
+
+[data-theme='dark'] .mesh-bg {
+  background-color: #0f172a;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(244, 114, 182, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(96, 165, 250, 0.15) 0px, transparent 50%);
+}
+
+/* Khung Split Card (Chia đôi) - THU NHỎ LẠI & LÀM NỔI BẬT CAO CẤP */
+.login-split-card {
+  display: flex;
+  width: 100%;
+  max-width: 820px;
+  /* Thu nhỏ để background nổi bật hơn */
+  min-height: 480px;
+  /* Thấp hơn để trông gọn gàng, thanh tao */
+  background: var(--card-bg);
+  border: 1.5px solid rgba(3, 105, 161, 0.15);
+  /* Viền mảnh ánh xanh dương sang trọng */
+  border-radius: 24px;
+  box-shadow:
+    0 30px 60px -15px rgba(15, 23, 42, 0.25),
+    /* Bóng đổ sâu 3D */
+    0 0 50px rgba(3, 169, 244, 0.05);
+  /* Hào quang dịu xung quanh card */
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =========================================
+   NỬA BÊN TRÁI: Banner Minh Họa (Premium Sky Blue Theme)
+   ========================================= */
+.login-left {
+  flex: 1.1;
+  /* Dải gradient 3 điểm - Chuyển từ Xanh Hoàng Gia (Royal Blue) sang Xanh Da Trời (Sky Blue) tạo hiệu ứng 3D và cực kỳ nịnh mắt */
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #60a5fa 100%);
+  color: white;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  /* Thêm bóng đổ nhẹ bên trong để tách biệt rõ hơn với form bên phải */
+  box-shadow: inset -10px 0 20px -10px rgba(0, 0, 0, 0.1);
+}
+
+/* Chế độ tối: Xanh đại dương sâu thẳm, huyền bí và cực kỳ sang trọng */
+[data-theme='dark'] .login-left {
+  background: linear-gradient(135deg, #0f172a 0%, #082f49 50%, #0369a1 100%);
+}
+
+/* Shape 1: Ánh sáng glow (Trăng/Mặt trời lấp ló) */
+.login-left::before {
+  content: '';
+  position: absolute;
+  top: -15%;
+  right: -15%;
+  width: 400px;
+  /* To hơn một chút để tạo vệt sáng mềm mại */
+  height: 400px;
+  /* Tăng nhẹ độ sáng (0.08) để hạt sáng nổi bật hơn trên nền xanh mới */
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 65%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Shape 2: Ánh sáng glow (Góc dưới) */
+.login-left::after {
+  content: '';
+  position: absolute;
+  bottom: -15%;
+  left: -15%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 65%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Đảm bảo nội dung (text, logo) bên trái luôn hiển thị rõ nét trên các Shape ánh sáng */
+.login-left>* {
+  z-index: 10;
+  position: relative;
+  /* Thêm bóng đổ chữ nhẹ để text nổi bần bật trên nền gradient sáng */
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================================
+   Nửa bên phải: Form đăng nhập
+   ========================================= */
+.login-right {
+  flex: 1;
+  padding: 3rem 2.5rem;
+  /* Cân đối lại không gian thở cho Form */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--card-bg);
+}
+
+/* Form Inputs Hiện đại (3D/Glow) */
+.modern-input-group {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+.modern-input-group .input-icon {
+  position: absolute;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.modern-input-group .modern-input {
+  width: 100%;
+  padding: 0.9rem 1rem 0.9rem 3.2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
+  border: 1.5px solid rgba(15, 23, 42, 0.22);
+  /* Viền đậm đà, sắc sảo rõ nét hơn */
+  border-radius: 12px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.03),
+    inset 0 1px 2px rgba(255, 255, 255, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+[data-theme='dark'] .modern-input-group .modern-input {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  /* Viền sáng rõ nét hơn cho chế độ tối */
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.05);
+}
+
+.modern-input-group .modern-input:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.08);
+}
+
+[data-theme='dark'] .modern-input-group .modern-input:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 10px rgba(96, 165, 250, 0.12);
+}
+
+.modern-input-group .modern-input:focus {
+  border-color: var(--primary-color);
+  background: var(--card-bg);
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 20px -3px rgba(37, 99, 235, 0.2),
+    /* Hiệu ứng đổ bóng nổi 3D khi chọn */
+    0 4px 6px -2px rgba(37, 99, 235, 0.08),
+    0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+[data-theme='dark'] .modern-input-group .modern-input:focus {
+  border-color: var(--primary-color);
+  box-shadow:
+    0 12px 20px -3px rgba(96, 165, 250, 0.25),
+    0 4px 6px -2px rgba(96, 165, 250, 0.15),
+    0 0 0 4px rgba(96, 165, 250, 0.2);
+}
+
+.modern-input-group .modern-input:focus~.input-icon {
+  color: var(--primary-color);
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* Nút Submit Custom */
+.btn-submit {
+  width: 100%;
+  padding: 0.9rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+  color: white;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+[data-theme='dark'] .btn-submit {
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+}
+
+[data-theme='dark'] .btn-submit:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+.btn-submit:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Nút Google */
+.btn-google {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 1.1rem;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  background: var(--card-bg);
+  border: 1.5px solid var(--border-color) !important;
+  color: var(--text-primary);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+}
+
+.btn-google img {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+[data-theme='dark'] .btn-google {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1.5px solid var(--border-color) !important;
+}
+
+.btn-google:hover {
+  background: var(--bg-color);
+  border-color: var(--primary-color) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-google:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 768px) {
+  .login-left {
+    display: none;
+  }
+
+  .login-split-card {
+    max-width: 420px;
+    min-height: auto;
+    margin: 1rem;
+  }
+
+  .login-right {
+    padding: 2.5rem 2rem;
+  }
+}
+
+/* =========================================
+   HIỆU ỨNG CÁNH HOA ANH ĐÀO RƠI (SAKURA)
+   ========================================= */
+.particles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  top: -10%;
+  background: linear-gradient(135deg, #ffc0cb, #ffb7c5);
+  border-radius: 100% 0px 100% 0px;
+  opacity: 0.8;
+  box-shadow: 0 0 8px rgba(255, 183, 197, 0.4);
+  animation: fallDown infinite linear;
+}
+
+[data-theme='dark'] .particle {
+  background: linear-gradient(135deg, #f472b6, #db2777);
+  opacity: 0.6;
+}
+
+@keyframes fallDown {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: translateY(55vh) translateX(60px) rotate(180deg) scale(1.1);
+  }
+
+  90% {
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translateY(110vh) translateX(-40px) rotate(360deg) scale(1);
+    opacity: 0;
+  }
+}

@@ -1,0 +1,112 @@
+@import './SelectorCommon.css';
+
+
+
+.school-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.school-card {
+  background: var(--white);
+  padding: 30px 20px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--white);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.school-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--blue-lt);
+}
+
+.school-card .school-icon {
+  background: var(--blue-lt);
+  color: var(--blue);
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  transition: 0.3s;
+}
+
+.school-card:hover .school-icon {
+  background: var(--blue);
+  color: var(--white);
+  transform: scale(1.1);
+}
+
+.school-card h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin: 10px 0 8px 0;
+  word-break: break-word;
+}
+
+.school-card p {
+  font-size: 14px;
+  color: var(--gray-600);
+  margin: 0;
+}
+
+.school-card .del-school-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  color: var(--gray-300);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: 0.2s;
+  opacity: 0;
+}
+
+.school-card:hover .del-school-btn {
+  opacity: 1;
+}
+
+.school-card .del-school-btn:hover {
+  color: #e74c3c;
+  background: #ffeaea;
+}
+
+.school-card.add-school-card {
+  border: 2px dashed var(--gray-300);
+  background: transparent;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.school-card.add-school-card:hover {
+  border-color: var(--blue);
+  background: var(--white);
+}
+
+.school-card.add-school-card .school-icon {
+  background: var(--gray-50);
+  color: var(--gray-500);
+  border: 1px dashed var(--gray-300);
+}
+
+.school-card.add-school-card:hover .school-icon {
+  background: var(--blue-lt);
+  color: var(--blue);
+  border-style: solid;
+}

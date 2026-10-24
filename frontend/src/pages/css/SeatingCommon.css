@@ -1,0 +1,249 @@
+/* CSS variables for Student Targets color codes */
+:root {
+  --green-lt: #e6f4ea;
+  --green: #137333;
+  --amber-lt: #fef7e0;
+  --amber: #b06000;
+  --red-lt: #fce8e6;
+  --red: #c5221f;
+}
+
+[data-theme='dark'] {
+  --green-lt: rgba(30, 142, 62, 0.15) !important;
+  --green: #81c784 !important;
+  --amber-lt: rgba(227, 116, 0, 0.15) !important;
+  --amber: #ffb74d !important;
+  --red-lt: rgba(217, 48, 37, 0.15) !important;
+  --red: #e57373 !important;
+}
+
+/* Hide global scrollbar when on seating/target page to show horizontal scrollbar at bottom */
+.app-main-content:has(.seating-chart-container-page) {
+  overflow: hidden !important;
+}
+
+body.presenting nav.glass {
+  display: none !important;
+}
+
+body.presenting .app-main-content {
+  overflow: hidden !important;
+  height: 100vh !important;
+}
+
+body.presenting .topbar,
+body.presenting .left-panel,
+body.presenting header,
+body.presenting .header {
+  display: none !important;
+}
+
+body.presenting {
+  padding: 0px;
+  background: var(--white);
+  height: 100vh;
+  overflow: hidden;
+  margin: 0;
+}
+
+body.presenting .right-panel,
+body.presenting .main-container {
+  border: none !important;
+  box-shadow: none !important;
+  padding: 2px !important;
+  border-radius: 0 !important;
+  height: 100vh !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--white) !important;
+}
+
+body.presenting .table-scroll-wrapper {
+  flex: 1;
+  overflow: hidden !important;
+}
+
+body.presenting table.sodo-table {
+  flex: 1;
+  border: 2px solid var(--gray-400);
+  height: 100%;
+  margin: 0;
+}
+
+body.presenting table.sodo-table td {
+  padding: 3px 6px !important;
+  border: 1px solid var(--gray-400) !important;
+  line-height: 1.2;
+}
+
+body.presenting table.sodo-table th {
+  display: none !important;
+}
+
+/* Base styles for seating table */
+table.sodo-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: var(--white);
+}
+
+table.sodo-table td {
+  background: var(--white);
+  color: var(--gray-900);
+  border: 1px solid var(--gray-300);
+  text-align: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Sticky table header styles */
+table.sodo-table thead th {
+  background: #d1e7dd !important;
+  color: #0f5132 !important;
+  border: 1px solid var(--gray-300) !important;
+  padding: 6px 4px !important;
+  text-align: center !important;
+  font-weight: 600;
+  font-size: 14px !important;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+table.sodo-table thead th.col-empty,
+table.sodo-table td.col-empty {
+  background: var(--white) !important;
+  border: none !important;
+}
+
+[data-theme='dark'] table.sodo-table thead th {
+  background: #1e3a8a !important;
+  color: #93c5fd !important;
+  border: 1px solid var(--gray-700) !important;
+}
+
+[data-theme='dark'] table.sodo-table thead th.col-empty,
+[data-theme='dark'] table.sodo-table td.col-empty {
+  background: var(--white) !important;
+  border: none !important;
+}
+
+[data-theme='dark'] table.sodo-table td {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+/* Soft/Muted text colors in dark mode to avoid glare */
+[data-theme='dark'] table.sodo-table td.dp-ho {
+  color: #cbd5e1 !important; /* Very bright clean gray for last names */
+}
+[data-theme='dark'] table.sodo-table td.dp-ten {
+  color: #ffffff !important; /* Pure white for first names to stand out clearly */
+}
+[data-theme='dark'] table.sodo-table td.col-pc,
+[data-theme='dark'] table.sodo-table td.dp-pc {
+  color: #94a3b8 !important; /* Clearly readable soft silver for PC */
+}
+[data-theme='dark'] table.sodo-table td.dp-bai {
+  color: #cbd5e1 !important;
+}
+[data-theme='dark'] table.sodo-table td.dp-mt {
+  color: #ffffff !important;
+}
+
+/* Float Exit Button */
+.present-exit-btn {
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  opacity: 0.2;
+  transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.present-exit-btn:hover {
+  opacity: 0.95;
+  background: #333;
+  border-color: #333;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+[data-theme='dark'] .present-exit-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.45);
+}
+
+[data-theme='dark'] .present-exit-btn:hover {
+  background: #f1f5f9;
+  border-color: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Left panel style adjustments */
+.left-panel input {
+  background-color: var(--white) !important;
+  color: var(--gray-900) !important;
+  border: 1px solid var(--gray-300) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.left-panel input:focus {
+  border-color: var(--blue) !important;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.15) !important;
+  outline: none;
+}
+
+/* Dark mode overrides for the left panel texts */
+[data-theme='dark'] .left-panel {
+  color: #cbd5e1 !important;
+  border-color: #334155 !important;
+}
+
+[data-theme='dark'] .left-panel .panel-header {
+  background: #0f172a !important;
+  border-bottom-color: #334155 !important;
+}
+
+[data-theme='dark'] .left-panel .panel-header span:first-child {
+  color: #ffffff !important; /* Pure white for main panel title */
+}
+
+[data-theme='dark'] .left-panel .panel-header span:last-child {
+  color: #cbd5e1 !important;
+}
+
+[data-theme='dark'] .left-panel .editor-header {
+  color: #ffffff !important; /* Pure white for header labels */
+  background: #1e293b !important; /* matches panel theme but slightly distinct */
+  border-bottom-color: #334155 !important;
+}
+
+[data-theme='dark'] .left-panel input {
+  color: #ffffff !important; /* Pure white for input values for maximum contrast */
+  border-color: #334155 !important;
+  background-color: #0f172a !important; /* dark slate input boxes to avoid glare */
+}
+
+[data-theme='dark'] .left-panel input::placeholder {
+  color: #64748b !important; /* Medium-light placeholder for better readability */
+}
+
+[data-theme='dark'] .left-panel .list-container {
+  background: #0f172a !important;
+}
+
+[data-theme='dark'] .left-panel .edit-row {
+  border-bottom-color: #1e293b !important;
+}
