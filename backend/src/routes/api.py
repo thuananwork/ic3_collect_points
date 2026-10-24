@@ -1,10 +1,10 @@
 import os
 from flask import Blueprint, request, jsonify
-from flask_login import login_required, current_user
 
+from src.auth_stub import current_user
+from src.middleware.auth import login_required, permission_required
 from src.config.settings import Config
 from src.utils.helpers import load_json, save_json, parse_danh_sach, parse_scores_regex
-from src.middleware.auth import permission_required
 
 # Import domain controllers
 from src.controllers.school_class_controller import (
@@ -33,7 +33,8 @@ from src.controllers.score_controller import (
     handle_get_data as ctrl_handle_get_data,
     handle_save_score as ctrl_handle_save_score,
     handle_save_manual_score as ctrl_handle_save_manual_score,
-    handle_delete_scores as ctrl_handle_delete_scores
+    handle_delete_scores as ctrl_handle_delete_scores,
+    handle_export_excel as ctrl_handle_export_excel
 )
 
 # Khởi tạo Blueprint cho toàn bộ API chính
@@ -92,8 +93,6 @@ def api_muctieu_info():
     ten_lop = get_active_class()
     return ctrl_api_muctieu_info(ten_lop)
 
-# Quyền cần có cho từng action (chỉ cần một trong các quyền liệt kê; admin luôn được).
-# Khớp với trang đang gọi: Dashboard dùng "laydiem", sơ đồ chỗ ngồi dùng "chongoi", mục tiêu dùng "muctieu".
 ACTION_PERMISSIONS = {
     'get_data': ('laydiem', 'chongoi', 'muctieu'),
     'update_pc_mapping': ('chongoi', 'laydiem'),
@@ -110,7 +109,6 @@ ACTION_PERMISSIONS = {
     'set_scoring': ('laydiem',),
     'publish': ('laydiem',),
 }
-
 
 @api_bp.route('/api/action', methods=['POST'])
 @login_required
@@ -188,12 +186,22 @@ def route_save_score():
     resp.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     return resp
 
-
 @api_bp.route('/api/ip-mapping', methods=['GET'])
 @login_required
 @permission_required('laydiem')
 def api_ip_mapping():
     return ctrl_handle_get_ip_mapping()
 
+@api_bp.route('/api/export-excel', methods=['GET'])
+@login_required
+@permission_required('laydiem')
+def api_export_excel():
+    ten_lop = request.args.get('lop', '').strip()
+    if not ten_lop:
+        ten_lop = get_active_class()
+    if not ten_lop:
+        return jsonify({"status": "error", "message": "Chưa chọn lớp"}), 400
+    return ctrl_handle_export_excel(ten_lop)
+
 # Import sub-modules to register routes under api_bp
-from . import api_school_class, api_excel_gsheet, api_operation_tools
+from . import api_school_class
