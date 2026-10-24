@@ -56,6 +56,31 @@ Base.metadata.create_all(engine)
 
 # Nap app va ghi de SCORES_PATH sang thu muc tam
 from app import app
+
+# Cac duong gui diem chi nhan khi may co account.lic hop le (xem src/routes/auth.py): dung giay phep gia lap trong thu muc tam
+import datetime as _dt
+from cryptography.hazmat.primitives import serialization as _ser
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey as _Key
+from src.utils import licence as _lic
+
+_key = _Key.generate()
+_PRIV = _key.private_bytes(_ser.Encoding.Raw, _ser.PrivateFormat.Raw, _ser.NoEncryption())
+_PUB = _key.public_key().public_bytes(_ser.Encoding.Raw, _ser.PublicFormat.Raw)
+_TEST_MACHINE = "AAAA-BBBB-CCCC-DDDD-EEEE"
+_LIC_ROOT = os.path.join(_TEMP_DIR, "licroot")
+os.makedirs(_LIC_ROOT, exist_ok=True)
+os.environ["IC3_APP_ROOT"] = _LIC_ROOT
+os.environ["IC3_STATE_DIR"] = os.path.join(_TEMP_DIR, "state")
+_lic.read_pubkey = lambda: _PUB
+_lic.machine_code = lambda raw=None: _TEST_MACHINE
+_today = _dt.date.today()
+with open(os.path.join(_LIC_ROOT, "account.lic"), "wb") as _f:
+    _f.write(_lic.sign_licence({
+        "v": 1, "product": _lic.PRODUCT, "holder": "Test", "user": "test",
+        "pw": _lic.hash_password("test-password"),
+        "issued": _today.isoformat(), "expires": (_today + _dt.timedelta(days=30)).isoformat(),
+        "machines": [_TEST_MACHINE],
+    }, _PRIV))
 score_controller.SCORES_PATH = _TEMP_SCORES
 
 

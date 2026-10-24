@@ -4,13 +4,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def _load_secret_key():
-    key = os.getenv('SECRET_KEY')
-    if not key:
-        import secrets
-        key = secrets.token_hex(32)
-        print("[CẢNH BÁO] Chưa đặt SECRET_KEY trong backend/.env - đang dùng khoá ngẫu nhiên tạm thời, "
-              "mọi phiên đăng nhập sẽ mất khi khởi động lại.")
-    return key
+    # Phiên đăng nhập không dùng khoá này nữa (app.py tự tạo khoá ngẫu nhiên mỗi lần chạy); giữ cho tương thích
+    import secrets
+    return os.getenv('SECRET_KEY') or secrets.token_hex(32)
 
 
 class Config:

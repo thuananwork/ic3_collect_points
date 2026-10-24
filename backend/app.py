@@ -14,7 +14,7 @@ from src.config.settings import Config
 from src.utils.helpers import get_server_ip
 from src.config.database import db_session, engine as _engine, Base
 from src.models.models_db import UserDB
-from src.routes.auth import auth_bp
+from src.routes.auth import auth_bp, install_guard
 from src.routes.api import api_bp
 from src.utils.schema_upgrade import ensure_schema
 from src.utils import lan_guard
@@ -25,10 +25,13 @@ load_dotenv()
 # Cấu hình Flask App & Thư mục Static chứa giao diện Frontend đã build
 app = Flask(__name__, static_folder='../frontend/dist')
 app.config.from_object(Config)
-app.secret_key = Config.SECRET_KEY
+# Khoá phiên ngẫu nhiên mỗi lần chạy: tắt phần mềm là phải đăng nhập lại
+app.secret_key = os.urandom(32)
 
 # Học sinh cùng mạng chỉ được gửi điểm; mọi thứ khác chỉ nhận từ chính laptop giáo viên
 lan_guard.install(app)
+# Tiếp theo: mọi API/đường dẫn của giáo viên cần đăng nhập bằng account.lic
+install_guard(app)
 
 # Tự động tạo bảng và kiểm tra schema
 Base.metadata.create_all(bind=_engine)
@@ -56,7 +59,7 @@ except Exception as _e:
 app.config.update(
     SESSION_COOKIE_SECURE=Config.SESSION_COOKIE_SECURE,
     SESSION_COOKIE_HTTPONLY=Config.SESSION_COOKIE_HTTPONLY,
-    SESSION_COOKIE_SAMESITE=Config.SESSION_COOKIE_SAMESITE
+    SESSION_COOKIE_SAMESITE='Strict'
 )
 
 # Bật CORS cho phép kết nối giữa Frontend và Backend

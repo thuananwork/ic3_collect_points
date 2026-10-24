@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, NavLink, useLocation } from 'react-router-dom';
-import { Grid, Target, Map, Sun, Moon, LayoutDashboard } from 'lucide-react';
-import { getAuthStatus } from './api';
+import { Grid, Target, Map, Sun, Moon, LayoutDashboard, LogOut } from 'lucide-react';
+import { getAuthStatus, logoutRequest } from './api';
+import Login from './pages/Login';
+import type { AuthStatus } from './pages/Login';
 
 // Kept Pages
 import SchoolSelector from './pages/SchoolSelector';
@@ -74,6 +76,7 @@ const AppContent: React.FC = () => {
   });
 
   const [user, setUser] = useState<User>(DEFAULT_TEACHER);
+  const [auth, setAuth] = useState<AuthStatus | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
   });
@@ -85,6 +88,9 @@ const AppContent: React.FC = () => {
       return;
     }
     checkAuth();
+    const onAuthRequired = () => checkAuth();
+    window.addEventListener('ic3-auth-required', onAuthRequired);
+    return () => window.removeEventListener('ic3-auth-required', onAuthRequired);
   }, []);
 
   useEffect(() => {
@@ -99,6 +105,7 @@ const AppContent: React.FC = () => {
   const checkAuth = async () => {
     try {
       const res = await getAuthStatus();
+      setAuth(res.data);
       if (res.data && res.data.authenticated && res.data.user) {
         setUser(res.data.user);
       }
@@ -106,6 +113,22 @@ const AppContent: React.FC = () => {
       console.error('Lỗi kiểm tra xác thực:', err);
     }
   };
+
+  const handleLogout = async () => {
+    try {
+      await logoutRequest();
+    } finally {
+      await checkAuth();
+    }
+  };
+
+  if (!auth) {
+    return <div className="flex-center" style={{ height: '100vh' }}>Đang tải...</div>;
+  }
+  if (!auth.authenticated) {
+    return <Login status={auth} onChanged={checkAuth} />;
+  }
+  const daysLeft = auth.licence.days_left;
 
   return (
     <div className="app-container">
@@ -168,9 +191,25 @@ const AppContent: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          {typeof daysLeft === 'number' && daysLeft <= 14 && (
+            <span
+              title={`Giấy phép hết hạn ngày ${auth.licence.expires}`}
+              style={{ fontSize: '0.78rem', fontWeight: 700, color: '#a50e0e', background: '#fce8e6', padding: '4px 10px', borderRadius: '999px' }}
+            >
+              Còn {Math.max(daysLeft, 0)} ngày
+            </span>
+          )}
           <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
             {user.name}
           </span>
+          <button
+            onClick={handleLogout}
+            className="btn-ghost flex-center"
+            style={{ width: '36px', height: '36px', padding: 0, borderRadius: '50%' }}
+            title="Đăng xuất"
+          >
+            <LogOut size={18} />
+          </button>
           <button
             onClick={toggleTheme}
             className="btn-ghost flex-center"
