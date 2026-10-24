@@ -17,6 +17,7 @@ from src.models.models_db import UserDB
 from src.routes.auth import auth_bp
 from src.routes.api import api_bp
 from src.utils.schema_upgrade import ensure_schema
+from src.utils import lan_guard
 
 # Nạp các biến môi trường
 load_dotenv()
@@ -25,6 +26,9 @@ load_dotenv()
 app = Flask(__name__, static_folder='../frontend/dist')
 app.config.from_object(Config)
 app.secret_key = Config.SECRET_KEY
+
+# Học sinh cùng mạng chỉ được gửi điểm; mọi thứ khác chỉ nhận từ chính laptop giáo viên
+lan_guard.install(app)
 
 # Tự động tạo bảng và kiểm tra schema
 Base.metadata.create_all(bind=_engine)
@@ -57,7 +61,6 @@ app.config.update(
 
 # Bật CORS cho phép kết nối giữa Frontend và Backend
 CORS(app, resources={
-    r"/api/public/*": {"origins": [Config.FRONTEND_URL, "http://localhost:5173", "http://127.0.0.1:5173", "null"], "supports_credentials": True},
     r"/api/save-score": {"origins": "*", "supports_credentials": False},
     r"/*": {"origins": [Config.FRONTEND_URL, "http://localhost:5173", "http://127.0.0.1:5173"], "supports_credentials": True}
 })

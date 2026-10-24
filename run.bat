@@ -20,9 +20,7 @@ if not defined PY call :tao_venv
 if not defined PY (
   echo.
   echo [!] Khong tim thay Python dung duoc tren may nay.
-  echo     Cach 1: cai Python 3 roi chay lai file nay ^(can Internet mot lan^).
-  echo     Cach 2: chay scripts\Cai_Python_Di_Kem.bat tren may co Internet de tao ban Python di kem,
-  echo             roi chep ca thu muc du an sang may nay.
+  echo     Cai Python 3 ^(python.org^) roi chay lai file nay.
   pause
   exit /b 1
 )

@@ -8,7 +8,6 @@ class UserDB(Base):
     
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String(100), unique=True, nullable=False)
-    google_id = Column(String(100), unique=True, nullable=True)
     username = Column(String(50), unique=True, nullable=True)
     password_hash = Column(String(255), nullable=True)
     full_name = Column(Unicode(100), nullable=False)
