@@ -4,7 +4,7 @@ import re
 import time
 import urllib.parse
 from flask import request, jsonify, Response
-from flask_login import current_user
+from src.auth_stub import current_user
 from src.config.settings import Config
 from src.config.database import db_session
 from src.models.models_db import ClassDB, ComputerDB, WorkstationDB, ScoreDB, StudentDB
@@ -349,7 +349,7 @@ def handle_delete_scores(ten_lop):
         if os.path.exists(s_dir):
             for f in glob.glob(os.path.join(s_dir, "*.html")):
                 try: os.remove(f)
-                except: pass
+                except OSError as _exc: print(f"[!] Lỗi xóa file: {_exc}")
     return jsonify({"status": "success"})
 
 def handle_export_excel(ten_lop):
@@ -458,8 +458,8 @@ def handle_export_excel(ten_lop):
             try:
                 if int(diem_cao) < int(target_score):
                     max_score_style += " background-color: #ffcccc; color: #cc0000;"
-            except:
-                pass
+            except (ValueError, TypeError) as _exc:
+                max_score_style += ""
                 
         ot_style = ""
         if bai_giao != "" and bai_da_thi != "" and bai_da_thi != "UNKNOWN":

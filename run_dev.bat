@@ -19,7 +19,7 @@ pushd "%~dp0backend"
 popd
 set "IC3_DEV=1"
 start "IC3 Manager - Backend" /d "%~dp0backend" cmd /k ""%PY%" app.py"
-if not exist "%~dp0frontend\node_modules\@fortawesome" (
+if not exist "%~dp0frontend\node_modules" (
   pushd "%~dp0frontend"
   call npm install
   popd

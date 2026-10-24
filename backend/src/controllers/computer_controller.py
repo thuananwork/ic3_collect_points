@@ -2,8 +2,8 @@ import os
 import re
 import time
 from flask import request, jsonify
-from flask_login import current_user
 from sqlalchemy import text
+from src.auth_stub import current_user
 from src.config.database import db_session
 from src.models.models_db import ComputerDB, UserDB
 from src.utils.helpers import get_server_ip
@@ -83,7 +83,7 @@ def handle_nhan_ip():
         return "ERROR: Invalid user_id", 400
 
     owner = db_session.query(UserDB).filter(UserDB.user_id == user_id).first()
-    if not owner or (not owner.is_approved and owner.role != 'admin'):
+    if not owner or not getattr(owner, 'is_approved', True):
         return "ERROR: Unknown user", 400
 
     comp = get_or_create_computer(user_id, pc)

@@ -2,7 +2,7 @@ import os
 import json
 import re
 from flask import request, jsonify
-from flask_login import current_user
+from src.auth_stub import current_user
 from src.config.settings import Config
 from src.config.database import db_session
 from src.models.models_db import ClassDB, StudentDB, WorkstationDB

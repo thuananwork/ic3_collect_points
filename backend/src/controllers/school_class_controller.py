@@ -1,7 +1,7 @@
 import re
 import unicodedata
 from flask import request, jsonify
-from flask_login import current_user
+from src.auth_stub import current_user
 from src.config.database import db_session
 from src.models.models_db import SchoolDB, ClassDB, UserActiveStateDB
 from src.utils.db_helpers import get_req_data, get_teacher_active_class_object

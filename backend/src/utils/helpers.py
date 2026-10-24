@@ -7,7 +7,7 @@ def load_json(path):
         try:
             with open(path, 'r', encoding='utf-8-sig') as f:
                 return json.load(f)
-        except:
+        except (json.JSONDecodeError, OSError):
             return {}
     return {}
 
@@ -38,8 +38,8 @@ def publish_draft(path):
         save_json(path, data)
         try:
             os.remove(draft_path)
-        except:
-            pass
+        except OSError as e:
+            print(f"[!] Không thể xóa draft file: {e}")
         return True
     return False
 
@@ -109,7 +109,6 @@ def parse_scores(scores_dir):
         if not filename.endswith('.html') or filename.startswith('._'):
             continue
             
-        # Thử nhiều định dạng regex khác nhau
         pc_num = None; ot_type = ""; score = 0; duration = "00-00-00"; timestamp = 0
         
         # 1. Format đầy đủ: PC01_OT1_Diem_950_00-12-45_1620546000.html
@@ -153,6 +152,7 @@ def parse_scores(scores_dir):
                 results[pc_num]['last_ot'] = ot_type
                 
     return results
+
 def get_server_ip():
     import socket
     
@@ -164,8 +164,8 @@ def get_server_ip():
         s.close()
         if ip and ip not in ('127.0.0.1', '127.0.0.2', '0.0.0.0'):
             return ip
-    except:
-        pass
+    except (socket.error, OSError):
+        ip = None
 
     # 2. Scan system network interfaces for local LAN IPs (192.168.x.x, 10.x.x.x, 172.16.x.x)
     try:
@@ -174,16 +174,16 @@ def get_server_ip():
         for ip in ips:
             if not ip.startswith('127.') and not ip.startswith('169.254') and ip != '0.0.0.0':
                 return ip
-    except:
-        pass
+    except (socket.error, OSError):
+        ip = None
 
     # 3. Fallback: try socket.gethostbyname
     try:
         ip = socket.gethostbyname(socket.gethostname())
         if ip and ip not in ('127.0.0.1', 'localhost', '0.0.0.0'):
             return ip
-    except:
-        pass
+    except (socket.error, OSError):
+        ip = None
 
     return "127.0.0.1"
 
@@ -193,21 +193,15 @@ def get_server_hostname():
     Lấy hostname .local của máy tính (mDNS/Bonjour).
     Hostname này cố định, không thay đổi khi IP đổi.
     Ví dụ: MacBook-GV.local, DESKTOP-ABC.local
-    
-    macOS: Bonjour tích hợp sẵn, luôn hoạt động.
-    Windows: Cần cài Bonjour (đi kèm iTunes) hoặc dùng hostname thường.
     """
     import socket
     import platform
     
     try:
         hostname = socket.gethostname()
-        # Loại bỏ .local nếu đã có (tránh trùng .local.local)
         hostname = hostname.replace('.local', '')
         
-        # Trên macOS, dùng Bonjour hostname (.local)
         if platform.system() == 'Darwin':
-            # Thử lấy tên máy từ scutil (chính xác hơn gethostname)
             try:
                 import subprocess
                 result = subprocess.run(
@@ -216,15 +210,13 @@ def get_server_hostname():
                 )
                 if result.returncode == 0 and result.stdout.strip():
                     hostname = result.stdout.strip()
-            except:
-                pass
+            except (subprocess.SubprocessError, OSError):
+                hostname = socket.gethostname()
         
-        # Thêm .local suffix cho mDNS resolution
         local_hostname = f"{hostname}.local"
         return local_hostname
         
     except Exception:
-        # Fallback: dùng IP nếu không lấy được hostname
         return get_server_ip()
 
 def normalize_ot(ot_str):
@@ -287,8 +279,6 @@ def parse_scores_regex(scores_dir):
                 results[pc_num]['scoresByOT'][ot] = []
             results[pc_num]['scoresByOT'][ot].append(sc)
             
-            # Cập nhật thông tin hiển thị (lấy kết quả mới nhất/cao nhất tạm thời)
-            # Quan trọng: quanly.js sẽ xử lý aggregation chính xác hơn
             all_sc_list = []
             for o_name, o_scores in results[pc_num]['scoresByOT'].items():
                 all_sc_list.extend(o_scores)
@@ -296,18 +286,17 @@ def parse_scores_regex(scores_dir):
             results[pc_num]['score'] = '|'.join(map(str, all_sc_list))
             results[pc_num]['max'] = max(all_sc_list) if all_sc_list else 0
             
-            # Ưu tiên lấy OT và thời gian của lần thi có điểm cao nhất
             if sc >= results[pc_num]['max']:
                 results[pc_num]['timeSpent'] = dur
                 results[pc_num]['lastOT'] = ot
                 
     return results
+
 def update_config_from_list(ten_lop, data, folder_ds):
     lines = data.split('\n')
     new_targets = {}; new_ots = {}; clear_targets = []
     is_sheet_format = False; seq_pc = 0
     
-    # Load current to merge
     target_path = os.path.join(folder_ds, f'target_{ten_lop}.json')
     ot_path = os.path.join(folder_ds, f'ot_config_{ten_lop}.json')
     targets = load_json(target_path); ots = load_json(ot_path)
@@ -330,19 +319,15 @@ def update_config_from_list(ten_lop, data, folder_ds):
         if vi_tri_index != -1:
             pc_num = int(re.sub(r'[^0-9]', '', cols[vi_tri_index]))
             if 1 <= pc_num <= 60:
-                # Format A: Full Google Sheet (PC tại cột 4, >=28 cột)
                 if vi_tri_index == 4 and len(cols) >= 28:
                     detected = True; bai_giao = cols[26]; muc_tieu = cols[27]
-                # Format B: Compact Sheet (PC tại cột 8, >=11 cột)
                 elif vi_tri_index == 8 and len(cols) >= 11:
                     detected = True; bai_giao = cols[9]; muc_tieu = cols[10]
-                # Format C: Simple (Tên PC BàiGiao MụcTiêu)
                 elif len(cols) > vi_tri_index + 1:
                     next_col = cols[vi_tri_index + 1]
                     if re.search(r'(OT|GM|Hoàn thành|Kiểm tra)', next_col, re.IGNORECASE):
                         detected = True; bai_giao = next_col
                         muc_tieu = cols[vi_tri_index + 2] if len(cols) > vi_tri_index + 2 else ''
-        # Format D: Sequential PC
         elif 14 <= len(cols) <= 20:
             potential_ot = cols[9] if len(cols) > 9 else ''
             if re.search(r'(OT|GM|Hoàn thành|Kiểm tra)', potential_ot, re.IGNORECASE):
@@ -362,92 +347,3 @@ def update_config_from_list(ten_lop, data, folder_ds):
         ots.update(new_ots)
         for pc in clear_targets: targets.pop(pc, None)
         save_json(target_path, targets); save_json(ot_path, ots)
-
-def _send_email_async(subject, body, recipient):
-    import smtplib
-    from email.mime.text import MIMEText
-    from email.mime.multipart import MIMEMultipart
-    
-    smtp_user = os.getenv('SMTP_USER')
-    smtp_password = os.getenv('SMTP_PASSWORD')
-    smtp_host = os.getenv('SMTP_HOST', 'smtp.gmail.com')
-    try:
-        smtp_port = int(os.getenv('SMTP_PORT', '587'))
-    except:
-        smtp_port = 587
-
-    # Nếu chưa cấu hình SMTP trong file .env, in thông tin ra terminal/log
-    if not smtp_user or not smtp_password:
-        print(f"\n[EMAIL LOG - CHƯA CẤU HÌNH SMTP_USER & SMTP_PASSWORD TRONG FILE .env]")
-        print(f"Người nhận: {recipient}")
-        print(f"Tiêu đề: {subject}")
-        print(f"Nội dung: Trình duyệt gửi thông báo đăng ký tài khoản.")
-        print("=> Hãy thêm SMTP_USER và SMTP_PASSWORD vào backend/.env để hệ thống tự động gửi email thực tế!\n")
-        return False
-
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = smtp_user
-        msg['To'] = recipient
-        msg['Subject'] = subject
-
-        msg.attach(MIMEText(body, 'html', 'utf-8'))
-
-        server = smtplib.SMTP(smtp_host, smtp_port)
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, recipient, msg.as_string())
-        server.quit()
-        print(f"[EMAIL SUCCESS] Gửi email thông báo tới {recipient} thành công!")
-        return True
-    except Exception as e:
-        print(f"[EMAIL ERROR] Không thể gửi email tới {recipient}: {e}")
-        return False
-
-def send_registration_notification(username, name, account_type):
-    import threading
-    recipient = os.getenv('NOTIFY_EMAIL', 'thuanan524@gmail.com')
-    subject = f"🔔 [IC3 Manager] Có tài khoản đăng ký mới: {username}"
-    
-    body = f"""
-    <html>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-        <div style="text-align: center; border-bottom: 2px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px;">
-          <h2 style="color: #2563eb; margin: 0;">YÊU CẦU PHÊ DUYỆT TÀI KHOẢN</h2>
-        </div>
-        <p>Xin chào Admin,</p>
-        <p>Hệ thống <strong>IC3 Manager</strong> vừa nhận được yêu cầu đăng ký tài khoản mới từ một giáo viên/thành viên. Dưới đây là thông tin chi tiết:</p>
-        
-        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-          <tr>
-            <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold; background-color: #f8fafc;" width="150">Email / Tên ĐN:</td>
-            <td style="padding: 8px; border: 1px solid #cbd5e1;">{username}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold; background-color: #f8fafc;">Họ và Tên:</td>
-            <td style="padding: 8px; border: 1px solid #cbd5e1;">{name}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold; background-color: #f8fafc;">Nguồn đăng ký:</td>
-            <td style="padding: 8px; border: 1px solid #cbd5e1; text-transform: capitalize;">{account_type}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold; background-color: #f8fafc;">Trạng thái:</td>
-            <td style="padding: 8px; border: 1px solid #cbd5e1; color: #ef4444; font-weight: bold;">Chờ Phê Duyệt</td>
-          </tr>
-        </table>
-        
-        <p>Vui lòng đăng nhập vào <strong>Bảng điều khiển Admin (Admin Console)</strong> để kiểm tra hồ sơ và phê duyệt cấp quyền cho tài khoản này.</p>
-        
-        <div style="text-align: center; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 0.85rem; color: #64748b;">
-          Đây là email tự động từ hệ thống IC3 Manager. Vui lòng không trả lời thư này.
-        </div>
-      </body>
-    </html>
-    """
-    
-    # Chạy ngầm trong Thread riêng để tránh làm chậm phản hồi trang đăng ký
-    t = threading.Thread(target=_send_email_async, args=(subject, body, recipient))
-    t.daemon = True
-    t.start()
-
