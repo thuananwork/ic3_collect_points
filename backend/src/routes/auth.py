@@ -12,18 +12,16 @@ from flask import Blueprint, jsonify, request, session
 from src.auth_stub import current_user
 from src.utils import licence as lic
 from src.utils.lan_guard import LAN_ALLOWED_PATHS
+from src.utils.paths import app_dir
 
 auth_bp = Blueprint('auth', __name__)
 
 MAX_LIC_BYTES = 64 * 1024
-_PROTECTED_PREFIXES = ('/api/', '/scripts/', '/tools/', '/uploads/')
+_PROTECTED_PREFIXES = ('/api/', '/scripts/', '/tools/', '/uploads/', '/lay_ip.bat')
 
 
 def app_root():
-    override = os.environ.get('IC3_APP_ROOT')
-    if override:
-        return override
-    return os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..'))
+    return app_dir()
 
 
 def licence_file():

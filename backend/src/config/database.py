@@ -22,8 +22,8 @@ except ImportError:
 if use_sqlite or not DATABASE_URL:
     # Trên macOS hoặc khi thiếu pyodbc, tự động chuyển sang dùng SQLite cục bộ
     # Dùng đường dẫn tuyệt đối để tránh lỗi khi chạy từ các CWD khác nhau (ví dụ: chạy từ thư mục root của dự án)
-    backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    db_path = os.path.join(backend_dir, "ic3manager.db")
+    from src.utils.paths import data_dir
+    db_path = os.path.join(data_dir(), "ic3manager.db")
     db_url = f"sqlite:///{db_path}"
     if not DATABASE_URL:
         print(f"[*] Sử dụng SQLite cục bộ tại {db_path} (mặc định).")

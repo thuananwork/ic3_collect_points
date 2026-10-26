@@ -17,13 +17,13 @@ from src.models.models_db import UserDB
 from src.routes.auth import auth_bp, install_guard
 from src.routes.api import api_bp
 from src.utils.schema_upgrade import ensure_schema
-from src.utils import lan_guard
+from src.utils import lan_guard, paths
 
 # Nạp các biến môi trường
 load_dotenv()
 
 # Cấu hình Flask App & Thư mục Static chứa giao diện Frontend đã build
-app = Flask(__name__, static_folder='../frontend/dist')
+app = Flask(__name__, static_folder=paths.ui_dir())
 app.config.from_object(Config)
 # Khoá phiên ngẫu nhiên mỗi lần chạy: tắt phần mềm là phải đăng nhập lại
 app.secret_key = os.urandom(32)
@@ -79,9 +79,12 @@ app.register_blueprint(api_bp)
 # Cấu hình phục vụ tải các tệp tin batch script
 @app.route('/scripts/<path:filename>')
 def serve_script_file(filename):
-    backend_dir = os.path.dirname(os.path.abspath(__file__))
-    scripts_dir = os.path.abspath(os.path.join(backend_dir, '../scripts'))
-    return send_from_directory(scripts_dir, filename)
+    return send_from_directory(paths.scripts_dir(), filename)
+
+@app.route('/lay_ip.bat')
+def download_lay_ip():
+    """Nút "Tải lay_ip.bat" trên Dashboard: tệp do giáo viên tạo (đã gắn IP máy giáo viên)."""
+    return send_from_directory(paths.scripts_dir(), 'lay_ip.bat', as_attachment=True)
 
 # Định tuyến bổ trợ phục vụ giao diện Single Page Application (SPA) của React
 @app.route('/', defaults={'path': ''})
@@ -92,15 +95,39 @@ def serve(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
+LOCAL_URL = 'http://127.0.0.1:5000'
+
+
+def _already_running(port=5000):
+    """Đã có một bản đang chạy trên máy này chưa (tránh mở hai bản tranh cổng 5000)."""
+    import socket
+    try:
+        with socket.create_connection(('127.0.0.1', port), timeout=0.5):
+            return True
+    except OSError:
+        return False
+
+
 if __name__ == '__main__':
-    flask_debug = os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    import threading
+    import webbrowser
+    flask_debug = os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't') and not paths.COMPILED
+    if paths.COMPILED and _already_running():
+        print("Phần mềm đã chạy sẵn trên máy này, đang mở trình duyệt...")
+        webbrowser.open(LOCAL_URL)
+        sys.exit(0)
     from src.utils.helpers import get_server_hostname
     hostname = get_server_hostname()
     ip = get_server_ip()
-    print("Backend starting at:")
-    print(f"  → Hostname: http://{hostname}:5000 (ổn định, không đổi)")
-    print(f"  → IP:       http://{ip}:5000 (có thể đổi khi restart)")
-    print(f"  → Debug:    {flask_debug}")
+    print("ic3_collect_points đang khởi động:")
+    print(f"  → Giáo viên mở: {LOCAL_URL}")
+    print(f"  → Máy học sinh gửi điểm về: http://{ip}:5000 (hoặc http://{hostname}:5000)")
+    print(f"  → Dữ liệu: {paths.data_dir()}")
+    if flask_debug:
+        print("  → Chế độ phát triển (debug)")
+    if paths.COMPILED or os.getenv('IC3_OPEN_BROWSER') == '1':
+        threading.Timer(2.0, webbrowser.open, [LOCAL_URL]).start()
+        print("  → Đóng cửa sổ này là tắt phần mềm.")
     if flask_debug:
         app.run(host='0.0.0.0', port=5000, debug=True)
     else:
@@ -111,5 +138,5 @@ if __name__ == '__main__':
             app.run(host='0.0.0.0', port=5000, debug=False)
         else:
             threads = int(os.getenv('WAITRESS_THREADS', '16'))
-            print(f"  → Server:   waitress ({threads} luồng)")
+            print(f"  → Máy chủ: waitress ({threads} luồng)")
             serve(app, host='0.0.0.0', port=5000, threads=threads)

@@ -195,6 +195,10 @@ class FlaskFlowTest(unittest.TestCase):
         def index():
             return 'spa'
 
+        @app.route('/lay_ip.bat')
+        def lay_ip():
+            return 'bat'
+
         self.c = app.test_client()
 
     def tearDown(self):
@@ -227,6 +231,7 @@ class FlaskFlowTest(unittest.TestCase):
         self.assertEqual(st['machine_code'], MACHINE)
         self.assertEqual(st['licence']['state'], lic.MISSING)
         self.assertEqual(self.get('/').status_code, 200)  # trang dang nhap van tai duoc
+        self.assertEqual(self.get('/lay_ip.bat').status_code, 401)  # tep phat cho hoc sinh can dang nhap
 
     def test_login_flow(self):
         self.put_licence()

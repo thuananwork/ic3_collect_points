@@ -8,6 +8,7 @@ from src.config.database import db_session
 from src.models.models_db import ComputerDB, UserDB
 from src.utils.helpers import get_server_ip
 from src.utils.rate_limit import limiter
+from src.utils.paths import scripts_dir
 from src.utils.db_helpers import get_or_create_computer, get_pc_key, get_req_data
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -16,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PC_NAME_RE = re.compile(r'^[A-Za-z0-9_-]{1,15}$')
 SERVER_HOST_RE = re.compile(r'^[A-Za-z0-9.\-]{1,253}$')
 
-SCRIPTS_DIR = os.path.normpath(os.path.join(BASE_DIR, '..', '..', '..', 'scripts'))
+SCRIPTS_DIR = scripts_dir()
 THUDIEM_PS1 = os.path.join(SCRIPTS_DIR, 'ThuDiem_Flash.ps1')
 
 

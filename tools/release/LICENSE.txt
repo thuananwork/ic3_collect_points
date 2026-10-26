@@ -1,0 +1,19 @@
+DIEU KHOAN SU DUNG - ic3_collect_points va TaoDeThi
+===================================================
+
+Phan mem nay do Nguyen Thuan An (sau day goi la "Tac gia") cap phep cho tung nguoi dung ca nhan.
+Bang viec mo va su dung phan mem, ban dong y voi cac dieu khoan sau.
+
+1. Quyen duoc cap. Ban duoc dung phan mem tren cac may ghi trong file account.lic cua ban, trong thoi han ghi trong file do,
+   de thu diem bai thi o lop hoc cua ban. Quyen nay khong chuyen nhuong va khong doc quyen.
+2. Khong duoc: sao chep de phat cho nguoi khac; dua file account.lic hoac mat khau cho nguoi khac; dich nguoc, giai ma,
+   thao go, trich xuat ma nguon hay khoa cua phan mem; go bo, lam sai lech co che giay phep hoac dong ho; ban lai, cho thue
+   hoac dang tai phan mem len noi cong khai.
+3. De thi. Phan mem chi xu ly cac file de thi do ban co quyen su dung. Ban chiu trach nhiem ve quyen su dung cac de thi do.
+4. Du lieu. Du lieu (truong, lop, diem) nam tren may cua ban, Tac gia khong thu thap va khong gui di dau. Ban tu sao luu.
+5. Het han va thu hoi. Giay phep tu het han vao ngay ghi trong account.lic. Tac gia co the khong cap moi neu ban vi pham dieu khoan.
+6. Khong bao dam. Phan mem duoc cung cap "nhu hien co", khong co bao dam nao ve tinh phu hop hay hoat dong khong loi.
+   Tac gia khong chiu trach nhiem cho thiet hai phat sinh tu viec su dung, bao gom mat diem do loi may, mang hoac de thi.
+7. Ma nguon va ban quyen thuoc ve Tac gia. Cac thu vien ma nguon mo di kem van theo giay phep cua tung thu vien.
+
+Lien he: (tac gia dien dia chi email lien he vao day truoc khi phat)

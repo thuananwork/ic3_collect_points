@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from src.utils.paths import data_dir
+
 def _load_secret_key():
     # Phiên đăng nhập không dùng khoá này nữa (app.py tự tạo khoá ngẫu nhiên mỗi lần chạy); giữ cho tương thích
     import secrets
@@ -11,7 +13,7 @@ def _load_secret_key():
 
 class Config:
     SECRET_KEY = _load_secret_key()
-    STORAGE_PATH = 'storage'
+    STORAGE_PATH = os.path.join(data_dir(), 'storage')
     DANHSACH_PATH = os.path.join(STORAGE_PATH, 'danhsach')
     SCORES_PATH = os.path.join(STORAGE_PATH, 'scores')
     FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')

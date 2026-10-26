@@ -1,0 +1,40 @@
+ic3_collect_points - Thu diem bai thi trong phong may (khong can Internet)
+==========================================================================
+
+A. LAN DAU TIEN (tren may giao vien)
+------------------------------------
+1. Giai nen thu muc nay o noi ban co quyen ghi (vi du D:\ic3_collect_points). Khong chay truc tiep trong file .zip.
+2. Mo ic3_collect_points.exe. Cua so den hien ra: DUNG DONG no khi dang dung phan mem.
+   Trinh duyet tu mo trang dang nhap. Neu Windows hoi tuong lua (Firewall), chon "Cho phep" tren mang rieng.
+3. Man hinh dang nhap hien "Ma may". Chep ma do gui cho tac gia de duoc cap file account.lic.
+4. Nhan file account.lic: bam "Chon file account.lic" tren man hinh dang nhap (hoac chep file vao cung thu muc voi
+   ic3_collect_points.exe). Roi dang nhap bang ten dang nhap va mat khau tac gia gui rieng.
+5. Moi tai khoan dung duoc tren so may da duoc cap (thuong 4). Muon them may: gui them ma may cho tac gia, nhan file moi.
+6. Tai khoan co han (thuong 4 thang). Het han thi khong dang nhap va hoc sinh khong gui duoc diem; xin tac gia file moi.
+
+B. TAO DE CHO HOC SINH (TaoDeThi.exe)
+-------------------------------------
+1. Keo file de thi .exe (vi du GS6_LV1_TESTING_01.exe) tha len bieu tuong TaoDeThi.exe. Co the keo nhieu file mot luc.
+2. Canh file goc se co them file ..._LAN.exe. Day la file phat cho hoc sinh. File goc khong bi sua.
+3. File _LAN.exe co the dung lai nhieu lan, khong can tao lai moi buoi.
+
+C. MOI BUOI THI
+---------------
+1. Tren may giao vien: mo ic3_collect_points.exe, dang nhap, chon truong -> lop -> Dashboard.
+2. Tao file lay_ip.bat: o man hinh Dashboard, vao Cong cu, bam tao lay_ip.bat (tu dien dung IP may giao vien hien tai).
+   File nam trong thu muc scripts\. May giao vien la laptop nen IP co the doi theo mang: tao lai moi noi moi buoi.
+3. Chep lay_ip.bat va cac file _LAN.exe sang may hoc sinh (USB hoac thu muc chia se trong mang LAN).
+4. Tren moi may hoc sinh: bam doi lay_ip.bat MOT lan truoc gio thi (mat vai giay, file tu bien mat), roi mo file _LAN.exe lam bai.
+5. Hoc sinh nop bai: diem tu gui ve may giao vien va hien o Dashboard. Hoc sinh khong mo duoc giao dien cua giao vien.
+
+D. XU LY SU CO
+--------------
+- May hoc sinh bao "Khong gui duoc IP": kiem tra cung mang, tat tuong lua may giao vien tam thoi hoac
+  chay scripts\fix_firewall.bat bang quyen quan tri tren may giao vien, roi chay lai lay_ip.bat.
+- Diem khong ve: giao vien phai dang mo phan mem va giay phep con han. Bai da nop van nam tren may hoc sinh va se tu gui lai.
+- "Dong ho may bi chinh lui": dat lai ngay gio dung roi mo lai phan mem.
+- Sai mat khau nhieu lan se bi khoa tam thoi (toi da 15 phut).
+
+E. DU LIEU
+----------
+Moi du lieu (truong, lop, diem) nam trong thu muc Data\ canh ic3_collect_points.exe. Sao luu bang cach chep thu muc nay.
