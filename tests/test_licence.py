@@ -66,9 +66,13 @@ class CoreTest(unittest.TestCase):
         four = [MACHINE, OTHER, '2222-3333-4444-5555-6666', '3333-4444-5555-6666-7777']
         self.assertEqual(lic.check_licence(self.raw(machines=four), self.pub, four[3])[0], lic.OK)
 
-    def test_five_machines_rejected_even_if_signed(self):
-        five = [MACHINE, OTHER, '2222-3333-4444-5555-6666', '3333-4444-5555-6666-7777', '4444-5555-6666-7777-8888']
-        self.assertEqual(lic.check_licence(self.raw(machines=five), self.pub, MACHINE)[0], lic.INVALID)
+    def test_six_machines_allowed_when_author_signs_them(self):
+        six = [MACHINE] + ['%04d-0000-0000-0000-0000' % i for i in range(1, 6)]
+        self.assertEqual(lic.check_licence(self.raw(machines=six), self.pub, six[5])[0], lic.OK)
+
+    def test_hard_ceiling_rejected_even_if_signed(self):
+        too_many = [MACHINE] + ['%04d-0000-0000-0000-0000' % i for i in range(1, lic.MAX_MACHINES + 1)]
+        self.assertEqual(lic.check_licence(self.raw(machines=too_many), self.pub, MACHINE)[0], lic.INVALID)
 
     def test_zero_machines_rejected(self):
         self.assertEqual(lic.check_licence(self.raw(machines=[]), self.pub, MACHINE)[0], lic.INVALID)

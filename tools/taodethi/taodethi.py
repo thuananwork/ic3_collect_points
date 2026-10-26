@@ -61,16 +61,22 @@ def _parse(data):
     return {'start': start, 'swf_len': swf_len, 'head': head, 'xml': xml, 'blob': blob}
 
 
-def patch(data):
-    """Tra ve noi dung file moi (bat localcache). Khong sua `data`."""
-    p = _parse(data)
-    xml = p['xml']
+def _transform(xml):
+    """Cau hinh de cho hoc sinh: bat luu ket qua (localcache) va cho nop bai o de Training (singlesubmit)."""
     if 'localcache="true"' in xml:
         new = xml
     elif 'localcache="false"' in xml:
         new = xml.replace('localcache="false"', 'localcache="true"')
     else:
         raise PatchError('khong thay thuoc tinh localcache trong goi de')
+    # De Training dat singlesubmit="true" va chan nop bai cuoi; de Testing da la "false" nen khong doi gi
+    return new.replace('singlesubmit="true"', 'singlesubmit="false"')
+
+
+def patch(data):
+    """Tra ve noi dung file moi (bat localcache, bo chan nop bai). Khong sua `data`."""
+    p = _parse(data)
+    new = _transform(p['xml'])
     comp = zlib.compress(new.encode('utf-8'), 9)
     start = p['start']
     overlay = data[start:start + p['swf_len']] + p['head'] + struct.pack('>I', len(comp)) + comp + p['blob']
@@ -86,7 +92,7 @@ def verify(original, patched):
         raise PatchError('kiem tra that bai: noi dung cau hoi bi thay doi')
     if 'localcache="true"' not in b['xml']:
         raise PatchError('kiem tra that bai: chua bat luu ket qua')
-    if b['xml'] != a['xml'].replace('localcache="false"', 'localcache="true"'):
+    if b['xml'] != _transform(a['xml']):
         raise PatchError('kiem tra that bai: cau hinh de bi thay doi ngoai y muon')
 
 

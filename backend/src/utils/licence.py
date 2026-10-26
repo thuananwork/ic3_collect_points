@@ -11,7 +11,7 @@ payload (JSON) có các trường:
   pw         băm mật khẩu scrypt: {algo, n, r, p, salt, hash}  (không lưu mật khẩu)
   issued     ngày cấp  YYYY-MM-DD
   expires    ngày hết hạn YYYY-MM-DD (hết ngày đó thì hết hạn)
-  machines   danh sách mã máy được dùng (tối đa 4)
+  machines   danh sách mã máy được dùng (mặc định 4, tác giả chỉnh tuỳ tài khoản, trần cứng 20)
 
 Giới hạn thật thà: offline thì không thu hồi tức thì được; hạn dùng ngắn (4 tháng) là cách thu hồi.
 Đồng hồ máy bị chỉnh lùi sẽ bị phát hiện qua `state.json` nhưng xoá file đó thì qua mặt được.
@@ -27,7 +27,8 @@ import sys
 import time
 
 PRODUCT = 'ic3_collect_points'
-MAX_MACHINES = 4
+DEFAULT_MACHINES = 4     # mặc định khi cấp; CapTaiKhoan cho đổi từng tài khoản
+MAX_MACHINES = 20        # trần cứng phía phần mềm (chữ ký vẫn là của tác giả)
 MAX_FAILS = 5
 LOCK_BASE_SECONDS = 60
 LOCK_MAX_SECONDS = 15 * 60

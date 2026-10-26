@@ -115,5 +115,51 @@ class NoSampleNeeded(unittest.TestCase):
         self.assertIsNone(out)
 
 
+
+class TransformRules(unittest.TestCase):
+    """Quy tac sua cau hinh de (khong can de that)."""
+
+    TRAINING = '<anssubmission showsubmit="false" singlesubmit="true" showcorrent="true" localcache="false"/>'
+    TESTING = '<anssubmission showsubmit="false" singlesubmit="false" showcorrent="true" localcache="false"/>'
+
+    def test_training_exam_gets_localcache_and_submit_unblocked(self):
+        self.assertEqual(
+            t._transform(self.TRAINING),
+            '<anssubmission showsubmit="false" singlesubmit="false" showcorrent="true" localcache="true"/>')
+
+    def test_testing_exam_only_gets_localcache(self):
+        self.assertEqual(
+            t._transform(self.TESTING),
+            '<anssubmission showsubmit="false" singlesubmit="false" showcorrent="true" localcache="true"/>')
+
+    def test_idempotent(self):
+        once = t._transform(self.TRAINING)
+        self.assertEqual(t._transform(once), once)
+
+    def test_other_attributes_untouched(self):
+        xml = self.TRAINING + '<item id="1" point="10" attempt="1"/>'
+        out = t._transform(xml)
+        self.assertTrue(out.endswith('<item id="1" point="10" attempt="1"/>'))
+        self.assertIn('showcorrent="true"', out)
+
+    def test_missing_localcache_is_an_error(self):
+        with self.assertRaises(t.PatchError):
+            t._transform('<anssubmission singlesubmit="true"/>')
+
+
+class RealTrainingExam(unittest.TestCase):
+    def test_every_real_exam_differs_only_by_the_two_switches(self):
+        files = _originals()
+        if not files:
+            self.skipTest('khong co IC3_DE_MAU')
+        for f in files:
+            data = _read(f)
+            out = t.patch(data)
+            t.verify(data, out)
+            a, b = t._parse(data)['xml'], t._parse(out)['xml']
+            self.assertIn('localcache="true"', b)
+            self.assertNotIn('singlesubmit="true"', b)
+            self.assertEqual(b, a.replace('localcache="false"', 'localcache="true"').replace('singlesubmit="true"', 'singlesubmit="false"'))
+
 if __name__ == '__main__':
     unittest.main()

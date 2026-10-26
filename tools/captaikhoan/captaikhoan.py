@@ -2,6 +2,7 @@
 
   CapTaiKhoan.py keygen                tạo cặp khoá ký (chạy MỘT lần, cất kỹ secrets/signing.key)
   CapTaiKhoan.py issue                 cấp account.lic mới (hỏi từng thông tin)
+  CapTaiKhoan.py edit FILE.lic         sửa tài khoản đã cấp (thêm/bớt máy, gia hạn) mà KHÔNG cần mật khẩu
   CapTaiKhoan.py show FILE.lic         xem nội dung một file account.lic (không hiện mật khẩu)
 
 Khoá riêng secrets/signing.key mất là không cấp được nữa; lộ là ai cũng tự cấp được. Sao lưu ở nơi an toàn.
@@ -110,10 +111,16 @@ def cmd_issue(args):
     if len(password) < 8:
         print('[!] Mật khẩu cần ít nhất 8 ký tự.')
         return 1
+    limit = args.max_machines
+    if limit is None:
+        limit = lic.DEFAULT_MACHINES if not sys.stdin.isatty() else int(_ask('Số máy tối đa của tài khoản này', str(lic.DEFAULT_MACHINES)))
+    if not 1 <= limit <= lic.MAX_MACHINES:
+        print('[!] Số máy tối đa phải từ 1 đến %d.' % lic.MAX_MACHINES)
+        return 1
     machines = list(args.machines or [])
     if not machines:
-        print('Nhập mã máy (đồng nghiệp lấy ở màn hình đăng nhập), mỗi dòng một mã, tối đa %d. Dòng trống để kết thúc.' % lic.MAX_MACHINES)
-        while len(machines) < lic.MAX_MACHINES:
+        print('Nhập mã máy (đồng nghiệp lấy ở màn hình đăng nhập), mỗi dòng một mã, tối đa %d. Dòng trống để kết thúc.' % limit)
+        while len(machines) < limit:
             m = input('  Mã máy %d: ' % (len(machines) + 1)).strip()
             if not m:
                 break
@@ -126,8 +133,8 @@ def cmd_issue(args):
             return 1
         cleaned.append('-'.join(norm[i:i + 4] for i in range(0, 20, 4)))
     cleaned = list(dict.fromkeys(cleaned))
-    if not 1 <= len(cleaned) <= lic.MAX_MACHINES:
-        print('[!] Cần từ 1 đến %d mã máy khác nhau.' % lic.MAX_MACHINES)
+    if not 1 <= len(cleaned) <= limit:
+        print('[!] Cần từ 1 đến %d mã máy khác nhau (đang có %d).' % (limit, len(cleaned)))
         return 1
     months = args.months
     if months is None:
@@ -154,6 +161,71 @@ def cmd_issue(args):
     return 0
 
 
+def _clean_codes(codes):
+    out = []
+    for m in codes:
+        norm = lic.normalize_machine_code(m)
+        if len(norm) != 20:
+            return None, m
+        out.append('-'.join(norm[i:i + 4] for i in range(0, 20, 4)))
+    return out, None
+
+
+def cmd_edit(args):
+    """Sửa tài khoản đã cấp: giữ nguyên tên đăng nhập và mật khẩu (băm), đổi danh sách máy / hạn rồi ký lại."""
+    private = _load_private()
+    if private is None:
+        return 1
+    with open(args.file, 'rb') as f:
+        raw = f.read()
+    state, payload = lic.parse_licence(raw, lic.read_pubkey())
+    if payload is None:
+        print('[!] Không đọc được file (%s). Phải là file do chính khoá của bạn cấp.' % state)
+        return 1
+    machines = list(payload['machines'])
+    if args.add or args.remove or args.months is None:
+        # Chế độ hỏi tay khi không truyền tham số nào
+        if not (args.add or args.remove or args.months is not None or args.max_machines is not None):
+            print('Tài khoản %s (%s), %d máy: %s' % (payload['holder'], payload['user'], len(machines), ', '.join(machines)))
+            add = input('Mã máy cần THÊM (cách nhau bằng dấu cách, Enter để bỏ qua): ').split()
+            rem = input('Mã máy cần BỎ (Enter để bỏ qua): ').split()
+            mo = input('Gia hạn thêm bao nhiêu tháng (Enter để không đổi): ').strip()
+            args.add, args.remove = add, rem
+            args.months = int(mo) if mo else None
+    add, bad = _clean_codes(args.add)
+    rem, bad2 = _clean_codes(args.remove)
+    if add is None or rem is None:
+        print('[!] Mã máy "%s" không đúng dạng (cần 20 ký tự chữ/số).' % (bad or bad2))
+        return 1
+    machines = [m for m in machines if lic.normalize_machine_code(m) not in {lic.normalize_machine_code(r) for r in rem}]
+    for m in add:
+        if m not in machines:
+            machines.append(m)
+    limit = args.max_machines if args.max_machines is not None else max(lic.DEFAULT_MACHINES, len(machines))
+    if not 1 <= limit <= lic.MAX_MACHINES:
+        print('[!] Số máy tối đa phải từ 1 đến %d.' % lic.MAX_MACHINES)
+        return 1
+    if not 1 <= len(machines) <= limit:
+        print('[!] Sau khi sửa còn %d máy, cần từ 1 đến %d. Dùng --max-machines để nâng giới hạn.' % (len(machines), limit))
+        return 1
+    today = datetime.date.today()
+    expires = datetime.date.fromisoformat(payload['expires'])
+    if args.months is not None:
+        expires = max(expires, add_months(today, args.months)) if args.months > 0 else expires
+    new_payload = dict(payload, machines=machines, expires=expires.isoformat(), issued=today.isoformat())
+    out_dir = args.out or os.path.join(author_dir(), 'CapPhat', _slug(payload.get('holder', 'user')) + '_' + today.strftime('%Y%m%d') + '_sua')
+    os.makedirs(out_dir, exist_ok=True)
+    out = os.path.join(out_dir, 'account.lic')
+    with open(out, 'wb') as f:
+        f.write(lic.sign_licence(new_payload, private))
+    print('[+] Đã ký lại: %s' % out)
+    print('    Người dùng : %s (%s), mật khẩu giữ nguyên' % (payload.get('holder', ''), payload['user']))
+    print('    Số máy     : %d (tối đa %d)' % (len(machines), limit))
+    print('    Hết hạn    : %s' % expires.isoformat())
+    print('Gửi file mới thay cho file cũ; file cũ vẫn dùng được đến hết hạn của nó.')
+    return 0
+
+
 def cmd_show(args):
     pub = lic.read_pubkey()
     with open(args.file, 'rb') as f:
@@ -177,13 +249,23 @@ def main(argv=None):
     p.add_argument('--password')
     p.add_argument('--machines', nargs='+')
     p.add_argument('--months', type=int)
+    p.add_argument('--max-machines', type=int, dest='max_machines')
     p.add_argument('--out')
+    e = sub.add_parser('edit')
+    e.add_argument('file')
+    e.add_argument('--add', nargs='+', default=[], help='mã máy cần thêm')
+    e.add_argument('--remove', nargs='+', default=[], help='mã máy cần bỏ')
+    e.add_argument('--months', type=int, help='gia hạn: hết hạn = hôm nay + số tháng (hoặc ngày hết hạn cũ nếu còn xa hơn)')
+    e.add_argument('--max-machines', type=int, dest='max_machines', help='số máy tối đa (mặc định giữ số hiện có, ít nhất 4)')
+    e.add_argument('--out')
     s = sub.add_parser('show')
     s.add_argument('file')
     args = ap.parse_args(argv)
     if args.cmd is None:
         print(__doc__)
-        choice = input('Chọn: 1 = tạo khoá (lần đầu), 2 = cấp account.lic mới, 3 = xem một file: ').strip()
+        choice = input('Chọn: 1 = tạo khoá (lần đầu), 2 = cấp account.lic mới, 3 = xem một file, 4 = sửa tài khoản đã cấp: ').strip()
+        if choice == '4':
+            return cmd_edit(ap.parse_args(['edit', input('Đường dẫn file account.lic cũ: ').strip().strip('"')]))
         if choice == '1':
             return cmd_keygen(args)
         if choice == '2':
@@ -193,7 +275,7 @@ def main(argv=None):
             return cmd_show(ap.parse_args(['show', input('Đường dẫn file .lic: ').strip().strip('"')]))
         return 0
     try:
-        return {'keygen': cmd_keygen, 'issue': cmd_issue, 'show': cmd_show}[args.cmd](args)
+        return {'keygen': cmd_keygen, 'issue': cmd_issue, 'edit': cmd_edit, 'show': cmd_show}[args.cmd](args)
     except (EOFError, KeyboardInterrupt):
         print('\nĐã huỷ.')
         return 1
