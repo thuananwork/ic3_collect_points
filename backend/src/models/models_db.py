@@ -160,3 +160,18 @@ class UserActiveStateDB(Base):
     active_school = relationship('SchoolDB', foreign_keys=[active_school_id])
     active_class = relationship('ClassDB', foreign_keys=[active_class_id])
     scoring_class = relationship('ClassDB', foreign_keys=[scoring_class_id])
+
+
+class SheetCellDB(Base):
+    """O diem nhap tay trong trang "Danh sach" (OT1..OT5, SLHT, FLA1, FLA2, GMT1, GMT2).
+    Khong co dong = o tu dong lay tu diem nhan duoc."""
+    __tablename__ = 'sheet_cells'
+    __table_args__ = (
+        UniqueConstraint('class_id', 'student_id', 'col_key', name='UQ_sheet_cells'),
+    )
+
+    cell_id = Column(Integer, primary_key=True, autoincrement=True)
+    class_id = Column(Integer, ForeignKey('classes.class_id', ondelete='CASCADE'), nullable=False, index=True)
+    student_id = Column(Integer, ForeignKey('students.student_id', ondelete='CASCADE'), nullable=False, index=True)
+    col_key = Column(String(10), nullable=False)
+    value = Column(Unicode(50), nullable=False)

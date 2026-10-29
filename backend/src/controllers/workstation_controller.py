@@ -534,6 +534,8 @@ def handle_save_list(active_class):
     else:
         db_session.query(StudentDB).filter(StudentDB.class_id == cls.class_id).delete(synchronize_session=False)
     db_session.flush()
+    from src.controllers.sheet_controller import purge_orphan_cells
+    purge_orphan_cells(cls.class_id)
 
     for item in parsed_students:
         name = item['full_name']

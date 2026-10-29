@@ -81,8 +81,25 @@ def _load_private():
         return None
 
 
+def author_pubkey():
+    """Khoá công khai suy ra từ khoá ký của tác giả (không phụ thuộc file pubkey.txt trong mã nguồn)."""
+    private = None
+    try:
+        with open(key_path(), 'r', encoding='ascii') as f:
+            private = lic.b64d(f.read().strip())
+    except OSError:
+        return lic.read_pubkey()
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    return Ed25519PrivateKey.from_private_bytes(private).public_key().public_bytes(
+        serialization.Encoding.Raw, serialization.PublicFormat.Raw)
+
+
 def _slug(text):
-    return re.sub(r'[^a-z0-9_.-]+', '', text.lower().replace(' ', '')) or 'user'
+    import unicodedata
+    plain = unicodedata.normalize('NFD', text.replace('đ', 'd').replace('Đ', 'D'))
+    plain = ''.join(c for c in plain if not unicodedata.combining(c))
+    return re.sub(r'[^a-z0-9_.-]+', '', plain.lower().replace(' ', '')) or 'user'
 
 
 def _ask(prompt, default=None, secret=False):
@@ -101,10 +118,25 @@ def cmd_issue(args):
         print('[!] Cần nhập tên.')
         return 1
     user = args.user or _ask('Tên đăng nhập', _slug(holder))
+    email = getattr(args, 'email', None)
+    if email is None and sys.stdin.isatty():
+        email = _ask('Email (Enter để bỏ qua, có thì đăng nhập bằng email được)') or ''
+    email = (email or '').strip().lower()
+    if email and not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email):
+        print('[!] Email "%s" không đúng dạng.' % email)
+        return 1
     password = args.password
     generated = False
     if not password:
-        password = _ask('Mật khẩu (Enter để tự sinh)', None, secret=True)
+        # Hiện mật khẩu khi gõ (dễ kiểm tra) và bắt nhập lại lần 2 để chắc không gõ nhầm
+        while True:
+            password = _ask('Mật khẩu (hiện rõ, Enter để tự sinh)')
+            if not password:
+                break
+            again = _ask('Nhập lại mật khẩu để xác nhận')
+            if again == password:
+                break
+            print('[!] Hai lần nhập không giống nhau, nhập lại.')
     if not password:
         password = secrets.token_urlsafe(9)
         generated = True
@@ -117,9 +149,10 @@ def cmd_issue(args):
     if not 1 <= limit <= lic.MAX_MACHINES:
         print('[!] Số máy tối đa phải từ 1 đến %d.' % lic.MAX_MACHINES)
         return 1
+    any_machine = bool(getattr(args, 'any_machine', False))
     machines = list(args.machines or [])
-    if not machines:
-        print('Nhập mã máy (đồng nghiệp lấy ở màn hình đăng nhập), mỗi dòng một mã, tối đa %d. Dòng trống để kết thúc.' % limit)
+    if not machines and not any_machine:
+        print('Nhập mã máy (đồng nghiệp lấy ở màn hình đăng nhập), mỗi dòng một mã, tối đa %d. Có 1 máy thì nhập 1 mã rồi chỉ cần bấm Enter ở dòng kế tiếp để kết thúc.' % limit)
         while len(machines) < limit:
             m = input('  Mã máy %d: ' % (len(machines) + 1)).strip()
             if not m:
@@ -133,7 +166,9 @@ def cmd_issue(args):
             return 1
         cleaned.append('-'.join(norm[i:i + 4] for i in range(0, 20, 4)))
     cleaned = list(dict.fromkeys(cleaned))
-    if not 1 <= len(cleaned) <= limit:
+    if any_machine:
+        cleaned = []  # không ràng buộc máy: danh sách máy để trống
+    elif not 1 <= len(cleaned) <= limit:
         print('[!] Cần từ 1 đến %d mã máy khác nhau (đang có %d).' % (limit, len(cleaned)))
         return 1
     months = args.months
@@ -146,15 +181,19 @@ def cmd_issue(args):
         'pw': lic.hash_password(password),
         'issued': today.isoformat(), 'expires': expires.isoformat(), 'machines': cleaned,
     }
+    if any_machine:
+        payload['any_machine'] = True
+    if email:
+        payload['email'] = email
     out_dir = args.out or os.path.join(author_dir(), 'CapPhat', _slug(holder) + '_' + today.strftime('%Y%m%d'))
     os.makedirs(out_dir, exist_ok=True)
     out = os.path.join(out_dir, 'account.lic')
     with open(out, 'wb') as f:
         f.write(lic.sign_licence(payload, private))
     print('\n[+] Đã cấp: %s' % out)
-    print('    Người dùng : %s (%s)' % (holder, user))
+    print('    Người dùng : %s (%s)%s' % (holder, user, ', email ' + email if email else ''))
     print('    Hết hạn    : %s (%d tháng)' % (expires.isoformat(), months))
-    print('    Số máy     : %d' % len(cleaned))
+    print('    Số máy     : %s' % ('không ràng buộc máy' if any_machine else len(cleaned)))
     if generated:
         print('    Mật khẩu   : %s   <- chỉ hiện một lần, gửi riêng (không gửi chung với file)' % password)
     print('Gửi file account.lic cho đồng nghiệp; đồng nghiệp đặt vào thư mục phần mềm hoặc chọn file ở màn hình đăng nhập.')
@@ -178,7 +217,7 @@ def cmd_edit(args):
         return 1
     with open(args.file, 'rb') as f:
         raw = f.read()
-    state, payload = lic.parse_licence(raw, lic.read_pubkey())
+    state, payload = lic.parse_licence(raw, author_pubkey())
     if payload is None:
         print('[!] Không đọc được file (%s). Phải là file do chính khoá của bạn cấp.' % state)
         return 1
@@ -201,11 +240,22 @@ def cmd_edit(args):
     for m in add:
         if m not in machines:
             machines.append(m)
+    was_any = bool(payload.get('any_machine'))
+    choice = getattr(args, 'any_machine', None)
+    any_now = was_any if choice is None else (choice == 'yes')
+    if was_any and not any_now and not machines:
+        print('[!] Muốn ràng buộc lại máy thì cần nhập ít nhất một mã máy.')
+        return 1
+    if any_now and (add or rem):
+        print('[!] Tài khoản đang để "không ràng buộc máy", thêm/bớt mã máy không có tác dụng. Chọn "ràng buộc máy" trước.')
+        return 1
     limit = args.max_machines if args.max_machines is not None else max(lic.DEFAULT_MACHINES, len(machines))
     if not 1 <= limit <= lic.MAX_MACHINES:
         print('[!] Số máy tối đa phải từ 1 đến %d.' % lic.MAX_MACHINES)
         return 1
-    if not 1 <= len(machines) <= limit:
+    if any_now:
+        machines = []
+    elif not 1 <= len(machines) <= limit:
         print('[!] Sau khi sửa còn %d máy, cần từ 1 đến %d. Dùng --max-machines để nâng giới hạn.' % (len(machines), limit))
         return 1
     today = datetime.date.today()
@@ -213,6 +263,10 @@ def cmd_edit(args):
     if args.months is not None:
         expires = max(expires, add_months(today, args.months)) if args.months > 0 else expires
     new_payload = dict(payload, machines=machines, expires=expires.isoformat(), issued=today.isoformat())
+    if any_now:
+        new_payload['any_machine'] = True
+    else:
+        new_payload.pop('any_machine', None)
     out_dir = args.out or os.path.join(author_dir(), 'CapPhat', _slug(payload.get('holder', 'user')) + '_' + today.strftime('%Y%m%d') + '_sua')
     os.makedirs(out_dir, exist_ok=True)
     out = os.path.join(out_dir, 'account.lic')
@@ -220,14 +274,14 @@ def cmd_edit(args):
         f.write(lic.sign_licence(new_payload, private))
     print('[+] Đã ký lại: %s' % out)
     print('    Người dùng : %s (%s), mật khẩu giữ nguyên' % (payload.get('holder', ''), payload['user']))
-    print('    Số máy     : %d (tối đa %d)' % (len(machines), limit))
+    print('    Số máy     : %s' % ('không ràng buộc máy' if any_now else '%d (tối đa %d)' % (len(machines), limit)))
     print('    Hết hạn    : %s' % expires.isoformat())
     print('Gửi file mới thay cho file cũ; file cũ vẫn dùng được đến hết hạn của nó.')
     return 0
 
 
 def cmd_show(args):
-    pub = lic.read_pubkey()
+    pub = author_pubkey()
     with open(args.file, 'rb') as f:
         raw = f.read()
     state, payload = lic.parse_licence(raw, pub)
@@ -246,8 +300,10 @@ def main(argv=None):
     p = sub.add_parser('issue')
     p.add_argument('--holder')
     p.add_argument('--user')
+    p.add_argument('--email')
     p.add_argument('--password')
     p.add_argument('--machines', nargs='+')
+    p.add_argument('--any-machine', action='store_true', dest='any_machine', help='không ràng buộc máy (dùng được trên mọi máy)')
     p.add_argument('--months', type=int)
     p.add_argument('--max-machines', type=int, dest='max_machines')
     p.add_argument('--out')
@@ -256,6 +312,7 @@ def main(argv=None):
     e.add_argument('--add', nargs='+', default=[], help='mã máy cần thêm')
     e.add_argument('--remove', nargs='+', default=[], help='mã máy cần bỏ')
     e.add_argument('--months', type=int, help='gia hạn: hết hạn = hôm nay + số tháng (hoặc ngày hết hạn cũ nếu còn xa hơn)')
+    e.add_argument('--any-machine', choices=['yes', 'no'], dest='any_machine', help='yes = bỏ ràng buộc máy, no = ràng buộc lại (cần có mã máy)')
     e.add_argument('--max-machines', type=int, dest='max_machines', help='số máy tối đa (mặc định giữ số hiện có, ít nhất 4)')
     e.add_argument('--out')
     s = sub.add_parser('show')

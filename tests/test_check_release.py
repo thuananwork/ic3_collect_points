@@ -47,11 +47,17 @@ class CheckRelease(unittest.TestCase):
                 self.assertEqual(cr.check(self.root), [])
 
     def test_sourcemap_reference_and_private_key_text(self):
-        self.add('ui/assets/app.js', b'var a=1;\n//# sourceMappingURL=app.js.map')
+        self.add('he_thong/ui/assets/app.js', b'var a=1;\n//# sourceMappingURL=app.js.map')
         self.assertTrue(any('sourceMappingURL' in p for p in cr.check(self.root)))
-        self.add('ui/assets/app.js', b'ok')
-        self.add('scripts/x.txt', b'-----BEGIN PRIVATE KEY-----')
+        self.add('he_thong/ui/assets/app.js', b'ok')
+        self.add('he_thong/scripts/x.txt', b'-----BEGIN PRIVATE KEY-----')
         self.assertTrue(any('PRIVATE KEY' in p for p in cr.check(self.root)))
+
+    def test_stray_top_level_file_is_caught(self):
+        self.add('README.txt')
+        self.assertTrue(any('ngoài cùng' in p for p in cr.check(self.root)))
+        os.remove(os.path.join(self.root, 'README.txt'))
+        self.assertEqual(cr.check(self.root), [])
 
     def test_missing_folder(self):
         self.assertTrue(cr.check(os.path.join(self.root, 'khong-co')))

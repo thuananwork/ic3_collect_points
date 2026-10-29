@@ -66,3 +66,15 @@ export const uploadLicence = (file: File) => {
 };
 export const getIpMapping = () => api.get('/api/ip-mapping');
 export const exportExcelUrl = (lop: string) => `${API_BASE_URL}/api/export-excel?lop=${lop}`;
+
+// Trang "Danh sách" (bảng điểm giống Google Sheets)
+export const getSheetClasses = (schoolId?: number) =>
+    api.get('/api/sheet-classes', { params: schoolId ? { school_id: schoolId } : {} });
+export const getSheetData = (classId: number) => api.get('/api/sheet-data', { params: { class_id: classId } });
+export const saveSheetCells = (classId: number, cells: { student_id: number; col: string; value: string }[]) =>
+    api.post('/api/sheet-cells', { class_id: classId, cells });
+export const sheetExportUrl = (classId: number) => `${API_BASE_URL}/api/sheet-export?class_id=${classId}`;
+export const sheetExportAllUrl = (schoolId?: number) =>
+    `${API_BASE_URL}/api/sheet-export-all${schoolId ? `?school_id=${schoolId}` : ''}`;
+export const copySheet = (fromClassId: number, toClassId: number) =>
+    api.post('/api/sheet-copy', { from_class_id: fromClassId, to_class_id: toClassId });

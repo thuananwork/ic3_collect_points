@@ -373,6 +373,10 @@ const useSeatingState = (mode: 'seating' | 'targets') => {
       line = line.trim();
       if (!line) continue;
 
+      // Bỏ qua dòng tiêu đề nếu người dùng bôi đen cả dòng đầu của file mẫu
+      const lowerLine = line.toLowerCase().replace(/\s+/g, ' ');
+      if (['họ và tên', 'họ tên', 'họ tên', 'tên hs', 'tên học sinh'].some(h => lowerLine.startsWith(h))) continue;
+
       let cells = line.split(/\t/);
       if (cells.length === 1) {
         cells = line.split(/\s+/);

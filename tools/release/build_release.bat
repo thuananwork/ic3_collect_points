@@ -52,7 +52,7 @@ popd
 rem ===== 4. Bien dich phan mem chinh (Nuitka, thu muc standalone) =====
 if exist "%BUILD%\nuitka" rmdir /s /q "%BUILD%\nuitka"
 "%PY%" -m nuitka --standalone --assume-yes-for-downloads --windows-console-mode=force ^
-  --output-dir="%BUILD%\nuitka" --output-filename=ic3_collect_points.exe ^
+  --output-dir="%BUILD%\nuitka" --output-filename=ic3_collect_points_core.exe ^
   --include-package=src --include-package=sqlalchemy.dialects.sqlite --include-package=waitress ^
   --include-data-files="%ROOT%\backend\src\config\pubkey.txt=src\config\pubkey.txt" ^
   --product-name=ic3_collect_points --file-version=1.0.0.0 ^
@@ -66,16 +66,25 @@ if exist "%BUILD%\taodethi" rmdir /s /q "%BUILD%\taodethi"
   "%ROOT%\tools\taodethi\taodethi.py"
 if errorlevel 1 goto :loi
 
-rem ===== 6. Ghep thu muc phat hanh =====
+rem ===== 5b. ic3_collect_points.exe nho o ngoai cung (mo chuong trinh chinh trong he_thong) =====
+if exist "%BUILD%\launcher" rmdir /s /q "%BUILD%\launcher"
+"%PY%" -m nuitka --onefile --assume-yes-for-downloads --windows-console-mode=disable ^
+  --output-dir="%BUILD%\launcher" --output-filename=ic3_collect_points.exe --product-name=ic3_collect_points --file-version=1.0.0.0 ^
+  "%~dp0launcher.py"
+if errorlevel 1 goto :loi
+
+rem ===== 6. Ghep thu muc phat hanh: ngoai cung chi co 2 file exe va thu muc he_thong =====
 if exist "%ROOT%\release" rmdir /s /q "%ROOT%\release"
-mkdir "%OUT%\ui" "%OUT%\scripts" "%OUT%\Data"
-xcopy /e /i /y /q "%BUILD%\nuitka\app.dist\*" "%OUT%\" >nul
-xcopy /e /i /y /q "%ROOT%\frontend\dist\*" "%OUT%\ui\" >nul
-copy /y "%ROOT%\scripts\ThuDiem_Flash.ps1" "%OUT%\scripts\" >nul
-copy /y "%ROOT%\scripts\fix_firewall.bat" "%OUT%\scripts\" >nul
+set "SYS=%OUT%\he_thong"
+mkdir "%SYS%\app" "%SYS%\ui" "%SYS%\scripts" "%SYS%\Data"
+xcopy /e /i /y /q "%BUILD%\nuitka\app.dist\*" "%SYS%\app\" >nul
+xcopy /e /i /y /q "%ROOT%\frontend\dist\*" "%SYS%\ui\" >nul
+copy /y "%ROOT%\scripts\ThuDiem_Flash.ps1" "%SYS%\scripts\" >nul
+copy /y "%ROOT%\scripts\fix_firewall.bat" "%SYS%\scripts\" >nul
+copy /y "%BUILD%\launcher\ic3_collect_points.exe" "%OUT%\" >nul
 copy /y "%BUILD%\taodethi\TaoDeThi.exe" "%OUT%\" >nul
-copy /y "%~dp0HUONG_DAN.txt" "%OUT%\" >nul
-copy /y "%~dp0LICENSE.txt" "%OUT%\" >nul
+copy /y "%~dp0HUONG_DAN.txt" "%SYS%\" >nul
+copy /y "%~dp0LICENSE.txt" "%SYS%\" >nul
 
 rem ===== 7. Kiem tra truoc khi phat =====
 "%PY%" "%~dp0check_release.py" "%OUT%"
@@ -88,6 +97,7 @@ if errorlevel 1 (
 
 echo.
 echo [+] Xong: %OUT%
+echo     Ngoai cung chi co ic3_collect_points.exe, TaoDeThi.exe va thu muc he_thong.
 echo     Nen thu mot lan tren may sach (chua cai Python) roi moi gui.
 echo     Nen file thanh .zip, gui kem account.lic rieng cho tung dong nghiep ^(do CapTaiKhoan cap^).
 pause

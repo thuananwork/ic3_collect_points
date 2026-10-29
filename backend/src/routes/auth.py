@@ -111,12 +111,13 @@ def login():
         if code == 'locked':
             msg = 'Sai quá nhiều lần. Thử lại sau %d giây.' % wait
         elif code == 'bad_credentials':
-            msg = 'Sai tên đăng nhập hoặc mật khẩu.' + (' Tạm khoá %d giây.' % wait if wait else '')
+            msg = 'Sai tên đăng nhập/email hoặc mật khẩu.' + (' Tạm khoá %d giây.' % wait if wait else '')
         else:
             msg = lic.MESSAGES.get(code, 'Không đăng nhập được.')
         return jsonify({'status': 'error', 'code': code, 'message': msg, 'wait': wait}), 401 if code in ('bad_credentials', 'locked') else 403
     session.clear()
-    session['lic_user'] = username
+    _state, _payload = lic.parse_licence(raw, lic.read_pubkey())
+    session['lic_user'] = _payload['user'] if _payload else username  # luôn lưu tên đăng nhập chuẩn, kể cả khi gõ email
     state, payload = licence_status()
     return _status_response(state, payload)
 

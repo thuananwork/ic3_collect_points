@@ -10,12 +10,15 @@ import sys
 REQUIRED = [
     'ic3_collect_points.exe',
     'TaoDeThi.exe',
-    'LICENSE.txt',
-    'HUONG_DAN.txt',
-    os.path.join('ui', 'index.html'),
-    os.path.join('scripts', 'ThuDiem_Flash.ps1'),
-    os.path.join('src', 'config', 'pubkey.txt'),
+    os.path.join('he_thong', 'LICENSE.txt'),
+    os.path.join('he_thong', 'HUONG_DAN.txt'),
+    os.path.join('he_thong', 'app', 'ic3_collect_points_core.exe'),
+    os.path.join('he_thong', 'ui', 'index.html'),
+    os.path.join('he_thong', 'scripts', 'ThuDiem_Flash.ps1'),
+    os.path.join('he_thong', 'app', 'src', 'config', 'pubkey.txt'),
 ]
+# Ngoài cùng chỉ được có hai file exe và thư mục he_thong (cho gọn, đồng nghiệp khỏi rối)
+TOP_LEVEL_OK = {'ic3_collect_points.exe', 'taodethi.exe', 'he_thong'}
 FORBIDDEN_EXT = {'.py', '.pyc', '.pyi', '.map', '.db', '.sqlite', '.key', '.pem', '.env', '.lic', '.ts', '.tsx', '.sol'}
 FORBIDDEN_NAMES = {'signing.key', 'account.lic', '.env', 'state.json', 'captaikhoan.exe', 'captaikhoan.py'}
 FORBIDDEN_DIRS = {'.git', 'secrets', 'capphat', 'node_modules', '__pycache__', 'tests', '.agent', '.claude'}
@@ -30,6 +33,9 @@ def check(root):
     for rel in REQUIRED:
         if not os.path.exists(os.path.join(root, rel)):
             problems.append('thiếu: %s' % rel)
+    for name in sorted(os.listdir(root)):
+        if name.lower() not in TOP_LEVEL_OK:
+            problems.append('ngoài cùng không được có: %s (chỉ 2 file exe và thư mục he_thong)' % name)
     count = 0
     for folder, dirs, files in os.walk(root):
         for d in list(dirs):

@@ -260,7 +260,12 @@ const SeatingChart: React.FC = () => {
           <div className="custom-modal" style={{ width: '500px' }}>
             <div className="modal-title">Dán dữ liệu từ Excel</div>
             <div style={{ fontSize: '14px', marginBottom: '10px', color: 'var(--gray-700)' }}>
-              Dán bảng chứa <b>Tên HS, Vị trí (PC...), Bài làm, Mục tiêu</b>. Hệ thống tự động phân tích.<br />
+              Dán bảng chứa <b>Họ, Tên (hai cột riêng hoặc một cột), Vị trí (PC...), Bài làm, Mục tiêu</b>. Hệ thống tự động phân tích.<br />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+              <a href="/File_Mau_Danh_Sach.xlsx" download="File_Mau_Danh_Sach.xlsx" style={{ fontSize: '13px', fontWeight: 600, color: '#2563eb', textDecoration: 'none' }}>
+                ⬇ Tải file Excel mẫu (có hướng dẫn)
+              </a>
             </div>
             <textarea
               id="pasteData"

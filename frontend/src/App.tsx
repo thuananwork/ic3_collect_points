@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, NavLink, useLocation } from 'react-router-dom';
-import { Grid, Target, Map, Sun, Moon, LayoutDashboard, LogOut } from 'lucide-react';
+import { Grid, Target, Map, Sun, Moon, LayoutDashboard, LogOut, Table2 } from 'lucide-react';
 import { getAuthStatus, logoutRequest } from './api';
 import Login from './pages/Login';
 import type { AuthStatus } from './pages/Login';
@@ -11,6 +11,7 @@ import ClassSelector from './pages/ClassSelector';
 import Dashboard from './pages/Dashboard';
 import SeatingChart from './pages/SeatingChart';
 import StudentTargets from './pages/StudentTargets';
+import Sheet from './pages/Sheet';
 
 interface User {
   id: string;
@@ -186,6 +187,9 @@ const AppContent: React.FC = () => {
             <NavLink to="/targets" style={getNavLinkStyle}>
               <Target size={16} /> Mục tiêu
             </NavLink>
+            <NavLink to="/sheet" style={getNavLinkStyle}>
+              <Table2 size={16} /> Danh sách
+            </NavLink>
           </div>
           <div id="dashboard-navbar-portal" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginLeft: '1rem' }}></div>
         </div>
@@ -261,6 +265,14 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute user={user} permission="muctieu">
                 <StudentTargets />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sheet"
+            element={
+              <ProtectedRoute user={user} permission="laydiem">
+                <Sheet />
               </ProtectedRoute>
             }
           />

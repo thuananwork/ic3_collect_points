@@ -116,6 +116,33 @@ class CoreTest(unittest.TestCase):
         self.assertEqual(lic.login(raw, self.pub, MACHINE, 'gv01', 'sai', self.local, now)[1], 'bad_credentials')
         self.assertEqual(lic.login(raw, self.pub, MACHINE, 'gv99', 'MatKhau-Manh-1', self.local, now)[1], 'bad_credentials')
 
+    def test_login_with_email_case_insensitive(self):
+        raw = self.raw(email='thuanan@example.com')
+        now = time.time()
+        for typed in ('thuanan@example.com', ' ThuAnAn@Example.com '):
+            self.assertEqual(lic.login(raw, self.pub, MACHINE, typed, 'MatKhau-Manh-1', self.local, now), (True, lic.OK, 0))
+        self.assertEqual(lic.login(raw, self.pub, MACHINE, 'gv01', 'MatKhau-Manh-1', self.local, now)[0], True)  # van dang nhap bang user
+        self.assertEqual(lic.login(raw, self.pub, MACHINE, 'thuanan@example.com', 'sai', self.local, now)[1], 'bad_credentials')
+        self.assertEqual(lic.login(raw, self.pub, MACHINE, 'khac@example.com', 'MatKhau-Manh-1', self.local, now)[1], 'bad_credentials')
+
+    def test_email_not_accepted_when_licence_has_none(self):
+        raw = self.raw()
+        self.assertEqual(lic.login(raw, self.pub, MACHINE, '', 'MatKhau-Manh-1', self.local, time.time())[1], 'bad_credentials')
+
+    def test_any_machine_licence_works_on_every_machine_but_still_expires(self):
+        raw = self.raw(machines=[], any_machine=True)
+        now = time.time()
+        for code in (MACHINE, '1111-2222-3333-4444-5555'):
+            self.assertEqual(lic.check_licence(raw, self.pub, code, now)[0], lic.OK)
+        self.assertTrue(lic.login(raw, self.pub, '1111-2222-3333-4444-5555', 'gv01', 'MatKhau-Manh-1', self.local, now)[0])
+        late = now + 200 * 86400
+        self.assertEqual(lic.check_licence(raw, self.pub, MACHINE, late)[0], lic.EXPIRED)
+
+    def test_empty_machine_list_needs_any_machine_flag(self):
+        self.assertEqual(lic.parse_licence(self.raw(machines=[]), self.pub)[0], lic.INVALID)
+        self.assertEqual(lic.parse_licence(self.raw(machines=[], any_machine='yes'), self.pub)[0], lic.INVALID)
+        self.assertEqual(lic.check_licence(self.raw(any_machine=False), self.pub, '1111-2222-3333-4444-5555')[0], lic.WRONG_MACHINE)
+
     def test_lockout_after_five_failures_and_recovery(self):
         raw = self.raw()
         now = time.time()
@@ -245,6 +272,12 @@ class FlaskFlowTest(unittest.TestCase):
         self.assertEqual(self.get('/api/dashboard-info').status_code, 200)
         self.post('/api/auth/logout')
         self.assertEqual(self.get('/api/dashboard-info').status_code, 401)
+
+    def test_login_with_email_over_http_keeps_session(self):
+        self.put_licence(email='gv01@truong.vn')
+        r = self.login(user='GV01@Truong.vn')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(self.get('/api/dashboard-info').status_code, 200)  # phien luu ten dang nhap chuan, khong phai email
 
     def test_lockout_over_http(self):
         self.put_licence()

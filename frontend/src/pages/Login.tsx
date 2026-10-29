@@ -100,7 +100,7 @@ const Login: React.FC<LoginProps> = ({ status, onChanged }) => {
 
         {canLogin && (
           <form onSubmit={submit} className="lic-form">
-            <label htmlFor="lic-user">Tên đăng nhập</label>
+            <label htmlFor="lic-user">Tên đăng nhập hoặc email</label>
             <input
               id="lic-user"
               value={username}

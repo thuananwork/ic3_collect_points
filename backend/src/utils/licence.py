@@ -8,10 +8,12 @@ payload (JSON) có các trường:
   product    "ic3_collect_points"
   holder     tên người được cấp (hiển thị)
   user       tên đăng nhập
+  email      (tuỳ chọn) email, cũng dùng để đăng nhập thay cho tên đăng nhập
   pw         băm mật khẩu scrypt: {algo, n, r, p, salt, hash}  (không lưu mật khẩu)
   issued     ngày cấp  YYYY-MM-DD
   expires    ngày hết hạn YYYY-MM-DD (hết ngày đó thì hết hạn)
   machines   danh sách mã máy được dùng (mặc định 4, tác giả chỉnh tuỳ tài khoản, trần cứng 20)
+  any_machine (tuỳ chọn) true = không ràng buộc máy, dùng được trên mọi máy, chỉ bị giới hạn bởi hạn dùng; machines có thể rỗng
 
 Giới hạn thật thà: offline thì không thu hồi tức thì được; hạn dùng ngắn (4 tháng) là cách thu hồi.
 Đồng hồ máy bị chỉnh lùi sẽ bị phát hiện qua `state.json` nhưng xoá file đó thì qua mặt được.
@@ -154,9 +156,14 @@ def parse_licence(raw, pubkey):
         if payload.get('v') != 1 or payload.get('product') != PRODUCT:
             return INVALID, None
         machines = payload['machines']
-        if not isinstance(machines, list) or not 1 <= len(machines) <= MAX_MACHINES:
+        any_machine = payload.get('any_machine', False)
+        if not isinstance(any_machine, bool):
+            return INVALID, None
+        if not isinstance(machines, list) or len(machines) > MAX_MACHINES or (not any_machine and not machines):
             return INVALID, None
         if not isinstance(payload['user'], str) or not payload['user']:
+            return INVALID, None
+        if 'email' in payload and not isinstance(payload['email'], str):
             return INVALID, None
         datetime.date.fromisoformat(payload['expires'])
         datetime.date.fromisoformat(payload['issued'])
@@ -172,9 +179,10 @@ def check_licence(raw, pubkey, this_machine, now=None):
     state, payload = parse_licence(raw, pubkey)
     if state != OK:
         return state, None
-    mine = normalize_machine_code(this_machine)
-    if mine not in {normalize_machine_code(m) for m in payload['machines']}:
-        return WRONG_MACHINE, payload
+    if not payload.get('any_machine'):
+        mine = normalize_machine_code(this_machine)
+        if mine not in {normalize_machine_code(m) for m in payload['machines']}:
+            return WRONG_MACHINE, payload
     now = time.time() if now is None else now
     expires = datetime.date.fromisoformat(payload['expires'])
     end_of_day = datetime.datetime.combine(expires, datetime.time(23, 59, 59)).timestamp()
@@ -260,7 +268,12 @@ def login(raw_licence, pubkey, this_machine, username, password, local, now=None
     if state != OK:
         return False, state, 0
     # Luôn băm một lần dù sai tên, để thời gian trả lời không lộ tên đăng nhập có đúng hay không
-    user_ok = hmac.compare_digest(str(username).encode('utf-8'), payload['user'].encode('utf-8'))
+    # Cho phép đăng nhập bằng tên đăng nhập (đúng từng chữ) hoặc email (không phân biệt hoa thường)
+    typed = str(username)
+    user_ok = hmac.compare_digest(typed.encode('utf-8'), payload['user'].encode('utf-8'))
+    email = str(payload.get('email') or '').strip().lower()
+    email_ok = bool(email) and hmac.compare_digest(typed.strip().lower().encode('utf-8'), email.encode('utf-8'))
+    user_ok = user_ok or email_ok
     pw_ok = verify_password(str(password), payload['pw'])
     if user_ok and pw_ok:
         data.pop('fails', None)
